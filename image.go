@@ -27,7 +27,7 @@ func NewImage(img image.Image) *Image {
 	return &Image{gimg, []float64{float64(w), float64(h)}, w - 1, h - 1, false}
 }
 
-// Eval2 returns the values [0,1] of the field at x, y.
+// Eval2 returns the values [-1,1] of the field at x, y.
 func (f *Image) Eval2(x, y float64) []float64 {
 	if x < 0 || x >= f.Max[0] || y < 0 || y >= f.Max[1] {
 		return []float64{0, 0, 0, 1}
@@ -37,7 +37,8 @@ func (f *Image) Eval2(x, y float64) []float64 {
 	ix, iy := int(nx), int(ny)
 	p := f.getValues(ix, iy)
 	v := BiCubic(rx, ry, p)
-	return v
+	// Scale from [0,1] to [-1,1]
+	return []float64{v[0]*2 - 1, v[1]*2 - 1, v[2]*2 - 1, v[3]*2 - 1}
 }
 
 // Get 4x4 patch
@@ -103,6 +104,7 @@ func (f *Image) getValue(x, y int) []float64 {
 	a = a<<8 | a
 	av := float64(a)
 	av /= 0xffff
+	// Scale to [-1,1]
 	return []float64{rv, gv, bv, av}
 }
 

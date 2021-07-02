@@ -7,16 +7,16 @@ import (
 type Normal struct {
 	Source   Field
 	SDx, SDy float64
-	Dx2, Dy2 float64
+	Dx, Dy   float64
 }
 
 func NewNormal(src Field, sx, sy, dx, dy float64) *Normal {
-	return &Normal{src, sx / dx, sy / dy, dx / 2, dy / 2}
+	return &Normal{src, sx / (2 * dx), sy / (2 * dy), dx, dy}
 }
 
 func (n *Normal) Eval2(x, y float64) []float64 {
-	dx := n.Source.Eval2(x-n.Dx2, y) - n.Source.Eval2(x+n.Dx2, y)
-	dy := n.Source.Eval2(x, y-n.Dy2) - n.Source.Eval2(x, y+n.Dy2)
+	dx := n.Source.Eval2(x-n.Dx, y) - n.Source.Eval2(x+n.Dx, y)
+	dy := n.Source.Eval2(x, y-n.Dy) - n.Source.Eval2(x, y+n.Dy)
 	dx *= n.SDx
 	dy *= n.SDy
 	div := 1 / math.Sqrt(dx*dx+dy*dy+1)
