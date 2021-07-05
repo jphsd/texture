@@ -1,8 +1,8 @@
 package surface
 
 import (
-	"github.com/jphsd/graphics2d/color"
 	"github.com/jphsd/texture"
+	"github.com/jphsd/texture/color"
 	col "image/color"
 	"math"
 )
