@@ -10,10 +10,10 @@ import (
 
 // Image holds the data to support a continuous bicubic interpolation over an image.
 type Image struct {
-	Image         *image.NRGBA
-	Max           []float64
-	Width, Height int
-	HSL           bool
+	Image        *image.NRGBA
+	Max          []float64
+	LastX, LastY int
+	HSL          bool
 }
 
 // NewImage sets up a new field with the supplied image. The image is converted to a {0, 0}
@@ -27,14 +27,17 @@ func NewImage(img image.Image) *Image {
 	return &Image{gimg, []float64{float64(w), float64(h)}, w - 1, h - 1, false}
 }
 
+const (
+	epsilon = 0.0000001
+)
+
 // Eval2 returns the values [-1,1] of the field at x, y.
 func (f *Image) Eval2(x, y float64) []float64 {
 	if x < 0 || x >= f.Max[0] || y < 0 || y >= f.Max[1] {
 		return []float64{0, 0, 0, 1}
 	}
-	nx, ny := math.Floor(x), math.Floor(y)
-	rx, ry := x-nx, y-ny
-	ix, iy := int(nx), int(ny)
+	ix, iy := int(math.Floor(x+epsilon)), int(math.Floor(y+epsilon))
+	rx, ry := x-float64(ix), y-float64(iy)
 	p := f.getValues(ix, iy)
 	v := BiCubic(rx, ry, p)
 	// Scale from [0,1] to [-1,1]
@@ -61,23 +64,23 @@ func (f *Image) getValue(x, y int) []float64 {
 	if x < 0 {
 		if y < 0 {
 			col = f.Image.At(0, 0)
-		} else if y > f.Height {
-			col = f.Image.At(0, f.Height)
+		} else if y > f.LastY {
+			col = f.Image.At(0, f.LastY)
 		} else {
 			col = f.Image.At(0, y)
 		}
-	} else if x > f.Width {
+	} else if x > f.LastX {
 		if y < 0 {
-			col = f.Image.At(f.Width, 0)
-		} else if y > f.Height {
-			col = f.Image.At(f.Width, f.Height)
+			col = f.Image.At(f.LastX, 0)
+		} else if y > f.LastY {
+			col = f.Image.At(f.LastX, f.LastY)
 		} else {
-			col = f.Image.At(f.Width, y)
+			col = f.Image.At(f.LastX, y)
 		}
 	} else if y < 0 {
 		col = f.Image.At(x, 0)
-	} else if y > f.Height {
-		col = f.Image.At(x, f.Height)
+	} else if y > f.LastY {
+		col = f.Image.At(x, f.LastY)
 	} else {
 		col = f.Image.At(x, y)
 	}
@@ -132,4 +135,21 @@ func BiCubic(u, v float64, p [][][]float64) []float64 {
 		res[i] = Cubic(u, np)
 	}
 	return res
+}
+
+// NewRGBA renders the texture into a new RGBA image.
+func NewRGBA(width, height int, src ColorField, ox, oy, dx, dy float64) *image.RGBA {
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+	y := oy
+	for r := 0; r < height; r++ {
+		x := ox
+		for c := 0; c < width; c++ {
+			v := src.Eval2(x, y)
+			img.Set(c, r, v)
+			x += dx
+		}
+		y += dy
+	}
+
+	return img
 }

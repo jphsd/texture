@@ -4,6 +4,12 @@ import (
 	"math"
 )
 
+type DefaultNormal struct{}
+
+func (n *DefaultNormal) Eval2(x, y float64) []float64 {
+	return []float64{0, 0, 1}
+}
+
 type Normal struct {
 	Source   Field
 	SDx, SDy float64
