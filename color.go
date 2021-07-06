@@ -14,7 +14,9 @@ type Color struct {
 
 func (c *Color) Eval2(x, y float64) color.Color {
 	if c.Src2 == nil && c.Src3 == nil {
-		return &color.Gray16{uint16(c.Src1.Eval2(x, y) * 0xffff)}
+		v := (c.Src1.Eval2(x, y) + 1) / 2
+		v *= 0xffff
+		return &color.Gray16{uint16(v)}
 	}
 	a := 1.0
 	if c.Src4 != nil {
@@ -25,6 +27,20 @@ func (c *Color) Eval2(x, y float64) color.Color {
 		return &g2dcol.HSL{v1, v2, v3, a}
 	}
 	return &color.NRGBA{uint8(v1 * 0xff), uint8(v2 * 0xff), uint8(v3 * 0xff), uint8(a * 0xff)}
+}
+
+type ColorVector struct {
+	Src VectorField
+	HSL bool
+}
+
+func (cv *ColorVector) Eval2(x, y float64) color.Color {
+	v := cv.Src.Eval2(x, y)
+	a := 1.0
+	if cv.HSL {
+		return &g2dcol.HSL{v[0], v[1], v[2], a}
+	}
+	return &color.NRGBA{uint8(v[0] * 0xff), uint8(v[1] * 0xff), uint8(v[2] * 0xff), uint8(a * 0xff)}
 }
 
 type ColorConv struct {
