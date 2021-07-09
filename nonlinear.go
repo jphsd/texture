@@ -108,7 +108,7 @@ func (nl *NonLinear) XYToUV(x, y float64) (float64, float64) {
 		return u, v
 	}
 	u := x/nl.LambdaX + nl.PhaseX
-	if u > 1 {
+	for u > 1 {
 		u -= 1
 	}
 	offs := float64(nx) * nl.OffsetY

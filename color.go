@@ -93,6 +93,7 @@ func NewColorNL(start, end color.Color, colors []color.Color, tvals []float64, n
 		nt := []float64{0}
 		nt = append(nt, tvals...)
 		nt = append(nt, 1)
+		tvals = nt
 		nc := []color.Color{start}
 		nc = append(nc, colors...)
 		nc = append(nc, end)
@@ -113,13 +114,13 @@ func NewColorNL(start, end color.Color, colors []color.Color, tvals []float64, n
 func (c *ColorNL) ColorNLerp(t float64) color.Color {
 	t = c.NL.Transform(t)
 	var i int
-	for i = 0; i < len(c.TVals) && t < c.TVals[i]; i++ {
+	for i = 1; i < len(c.TVals) && t > c.TVals[i]; i++ {
 	}
-	c1 := c.Colors[i]
-	if i == len(c.TVals)-1 {
-		return c1
+	if i == len(c.TVals) {
+		return c.Colors[i-1]
 	}
-	return c.Lerp(t, c1, c.Colors[i+1])
+	nt := (t - c.TVals[i-1]) / (c.TVals[i] - c.TVals[i-1])
+	return c.Lerp(nt, c.Colors[i-1], c.Colors[i])
 }
 
 // Color Lerps

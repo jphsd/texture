@@ -64,8 +64,12 @@ func (g *Generator) VtoT(v float64) float64 {
 	return 0.5*(t-g.Center)/(1-g.Center) + 0.5
 }
 
-func Zero(t float64) float64 {
-	return 0
+type FlatGF struct {
+	Val float64
+}
+
+func (fgf *FlatGF) Flat(t float64) float64 {
+	return fgf.Val
 }
 
 func Sin(t float64) float64 {
