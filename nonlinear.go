@@ -47,6 +47,9 @@ func NewNonLinear(lambdaX, lambdaY, theta float64, nl util.NonLinear, inset floa
 	} else {
 		inset /= lambdaX
 	}
+	if inset > 0.5 {
+		inset = 0.5
+	}
 	dist := 1 - 2*inset
 	return &NonLinear{lambdaX, lambdaY, 0, 0, 0, 0, nil, ct, st, nl, dist, inset}
 }
