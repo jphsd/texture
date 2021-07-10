@@ -8,27 +8,37 @@ import (
 type Fractal struct {
 	Src     Field
 	Xfm     *g2d.Aff3
-	CFunc   func(float64, float64, int) float64
+	CFunc   func([]float64) float64
 	FFunc   func(float64) float64
 	Octaves int
 	Rem     float64
-	Initial float64
+	N       int
+}
+
+func NewFractal(src Field, xfm *g2d.Aff3, comb func([]float64) float64, octaves float64) *Fractal {
+	n := int(math.Floor(octaves))
+	r := octaves - float64(n)
+	vn := n
+	if r > 0 {
+		vn++
+	}
+	return &Fractal{src, xfm, comb, nil, n, r, vn}
 }
 
 func (f *Fractal) Eval2(x, y float64) float64 {
-	v := f.Initial
+	nv := make([]float64, f.N)
 	for i := 0; i < f.Octaves; i++ {
-		nv := f.Src.Eval2(x, y)
-		v = f.CFunc(v, nv, i)
+		nv[i] = f.Src.Eval2(x, y)
 		pt := f.Xfm.Apply([]float64{x, y})
 		x, y = pt[0][0], pt[0][1]
 	}
 
 	if f.Rem > 0 {
 		// Note linear and not geometric...
-		nv := f.Rem * (f.Src.Eval2(x, y)*2 - 1)
-		v = f.CFunc(v, nv, f.Octaves)
+		nv[f.Octaves] = f.Rem * f.Src.Eval2(x, y)
 	}
+
+	v := f.CFunc(nv)
 
 	if f.FFunc == nil {
 		return clamp((v + 1) / 2)
@@ -52,8 +62,12 @@ func NewFBM(hurst, lacunarity float64) *FBM {
 	return &FBM{w}
 }
 
-func (f *FBM) Combine(cur, noise float64, oct int) float64 {
-	return cur + noise*f.Weights[oct]
+func (f *FBM) Combine(values []float64) float64 {
+	res := 0.0
+	for i := 0; i < len(values); i++ {
+		res += values[i] * f.Weights[i]
+	}
+	return res
 }
 
 type MF struct {
@@ -69,6 +83,10 @@ func NewMF(hurst, lacunarity, offset float64) *MF {
 	return &MF{w, offset}
 }
 
-func (f *MF) Combine(cur, noise float64, oct int) float64 {
-	return cur * (noise + f.Offset) * f.Weights[oct]
+func (f *MF) Combine(values []float64) float64 {
+	res := 0.0
+	for i := 0; i < len(values); i++ {
+		res += (values[i] + f.Offset) * f.Weights[i]
+	}
+	return res
 }
