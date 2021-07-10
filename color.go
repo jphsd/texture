@@ -103,11 +103,7 @@ func NewColorNL(start, end color.Color, colors []color.Color, tvals []float64, n
 	if n > len(colors) {
 		n = len(colors)
 	}
-	nt := make([]float64, n)
-	for i, v := range tvals {
-		nt[i] = nl.Transform(v)
-	}
-	return &ColorNL{nl, lerp, colors, nt}
+	return &ColorNL{nl, lerp, colors, tvals}
 }
 
 // ColorNLerp returns the color at t given the nonlinear function and color/t points.
