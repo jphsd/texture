@@ -38,12 +38,12 @@ func (f *Fractal) Eval2(x, y float64) float64 {
 		nv[f.Octaves] = f.Rem * f.Src.Eval2(x, y)
 	}
 
-	v := f.CFunc(nv)
+	v := clamp(f.CFunc(nv))
 
 	if f.FFunc == nil {
-		return clamp((v + 1) / 2)
+		return v
 	}
-	return f.FFunc(clamp((v + 1) / 2))
+	return f.FFunc(v)
 }
 
 const (

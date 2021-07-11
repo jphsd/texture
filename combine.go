@@ -50,14 +50,18 @@ func Diff(u, v float64) float64 {
 }
 
 type CF2 struct {
-	Start, End float64
+	V1, V2 float64
 }
 
 func (c *CF2) Substitute(u, v float64) float64 {
-	if u < c.Start || u > c.End {
+	if u < c.V1 || u > c.V2 {
 		return u
 	}
 	return v
+}
+
+func (c *CF2) Sum(u, v float64) float64 {
+	return c.V1*u + c.V2*v
 }
 
 type Combiner3 struct {
