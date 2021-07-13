@@ -57,7 +57,7 @@ type FBM struct {
 func NewFBM(hurst, lacunarity float64) *FBM {
 	w := make([]float64, MaxOctaves)
 	for i := 0; i < MaxOctaves; i++ {
-		w[i] = math.Pow(lacunarity, -hurst*float64(i))
+		w[i] = math.Pow(lacunarity, -hurst*float64(i+1))
 	}
 	return &FBM{w}
 }
@@ -78,7 +78,7 @@ type MF struct {
 func NewMF(hurst, lacunarity, offset float64) *MF {
 	w := make([]float64, MaxOctaves)
 	for i := 0; i < MaxOctaves; i++ {
-		w[i] = math.Pow(lacunarity, -hurst*float64(i))
+		w[i] = math.Pow(lacunarity, -hurst*float64(i+1))
 	}
 	return &MF{w, offset}
 }
