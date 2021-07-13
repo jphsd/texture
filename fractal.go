@@ -18,7 +18,7 @@ type Fractal struct {
 func NewFractal(src Field, xfm *g2d.Aff3, comb func([]float64) float64, octaves float64) *Fractal {
 	n := int(math.Floor(octaves))
 	r := octaves - float64(n)
-	vn := n
+	vn := n + 1
 	if r > 0 {
 		vn++
 	}
@@ -27,7 +27,7 @@ func NewFractal(src Field, xfm *g2d.Aff3, comb func([]float64) float64, octaves 
 
 func (f *Fractal) Eval2(x, y float64) float64 {
 	nv := make([]float64, f.N)
-	for i := 0; i < f.Octaves; i++ {
+	for i := 0; i <= f.Octaves; i++ {
 		nv[i] = f.Src.Eval2(x, y)
 		pt := f.Xfm.Apply([]float64{x, y})
 		x, y = pt[0][0], pt[0][1]
