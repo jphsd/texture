@@ -127,6 +127,20 @@ func (g *NL2GF) NL2(t float64) float64 {
 	return v*2 - 1
 }
 
+type Noise1DGF struct {
+	Scale        float64
+	Noise        *Perlin
+	OffsX, OffsY float64
+}
+
+func NewNoise1DGF(scale float64) *Noise1DGF {
+	return &Noise1DGF{scale, NewPerlin(), 0, 0}
+}
+
+func (n *Noise1DGF) Noise1D(t float64) float64 {
+	return n.Noise.Eval2(t*n.Scale+n.OffsX, n.OffsY)
+}
+
 func closeTo(a, b float64) bool {
 	d := a - b
 	if d < 0 {

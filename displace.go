@@ -17,8 +17,8 @@ func (d *Displace) Eval2(x, y float64) float64 {
 		dvy := y + d.SrcY.Eval2(x+d.OffsX, y+d.OffsY)*d.ScaleY
 		return d.Src.Eval2(dvx, dvy)
 	}
-	dvx := d.SrcX.Eval2(x+d.OffsX, y+d.OffsY)*d.ScaleX
-	dvy := d.SrcY.Eval2(x+d.OffsX, y+d.OffsY)*d.ScaleY
+	dvx := d.SrcX.Eval2(x+d.OffsX, y+d.OffsY) * d.ScaleX
+	dvy := d.SrcY.Eval2(x+d.OffsX, y+d.OffsY) * d.ScaleY
 	return d.Src.Eval2(dvx, dvy)
 }
 
@@ -43,7 +43,7 @@ func (d *Displace2) Eval2(x, y float64) float64 {
 		return d.Src.Eval2(dvx, dvy)
 	}
 	dv := d.DistSrc.Eval2(x+d.OffsX, y+d.OffsY)
-	dvx := dv[d.SelX]*d.ScaleX
-	dvy := dv[d.SelY]*d.ScaleY
+	dvx := dv[d.SelX] * d.ScaleX
+	dvy := dv[d.SelY] * d.ScaleY
 	return d.Src.Eval2(dvx, dvy)
 }

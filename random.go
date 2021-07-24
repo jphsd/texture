@@ -1,6 +1,7 @@
 package texture
 
 import (
+	"fmt"
 	g2d "github.com/jphsd/graphics2d"
 	g2dcol "github.com/jphsd/graphics2d/color"
 	"github.com/jphsd/graphics2d/util"
@@ -9,34 +10,30 @@ import (
 	"math/rand"
 )
 
-type Fields struct {
+type Leaf struct {
+	Name string
+	Make func() Field
+}
+
+var LeafOptions = []Leaf{
+	{"Generator", MakeGenerator},
+	{"Perlin", MakePerlin},
+	{"DistortedPerlin", MakeDistortedPerlin},
+	{"NonLinear", MakeNonLinear},
+}
+
+type Node struct {
 	Name string
 	Make func(int, int) Field
 }
 
-var LeafOptions []Fields
+var NodeOptions []Node
 
-// TODO - promote to var?
-func GetLeaves() []Fields {
-	// Lazy initialization to prevent compiler complaining
-	// about initialization loops
-	if LeafOptions == nil {
-		LeafOptions = []Fields{
-			{"Generator", MakeGenerator},
-			{"Perlin", MakePerlin},
-			{"NonLinear", MakeNonLinear},
-		}
-	}
-	return LeafOptions
-}
-
-var NodeOptions []Fields
-
-func GetNodes() []Fields {
+func GetNodes() []Node {
 	// Lazy initialization to prevent compiler complaining
 	// about initialization loops
 	if NodeOptions == nil {
-		NodeOptions = []Fields{
+		NodeOptions = []Node{
 			{"Fractal", MakeFractal},
 			{"Distort", MakeDistort},
 			{"Select", MakeSelect},
@@ -51,24 +48,30 @@ func GetNodes() []Fields {
 	return NodeOptions
 }
 
-func MakeField(md, d int) Field {
-	l := GetLeaves()
+func MakeLeaf() Field {
+	res := LeafOptions[rand.Intn(len(LeafOptions))]
+	fmt.Printf("%s\n", res.Name)
+	return res.Make()
+}
+
+func MakeNode(md, d int) Field {
 	n := GetNodes()
+	return n[rand.Intn(len(n))].Make(md, d+1)
+}
+
+func MakeField(md, d int) Field {
+	l := LeafOptions
 	if d >= md {
-		return l[rand.Intn(len(l))].Make(md, d+1)
+		return l[rand.Intn(len(l))].Make()
 	}
+	n := GetNodes()
 	s := len(l) + len(n)
 	s = rand.Intn(s)
 	if s < len(l) {
-		return l[s].Make(md, d+1)
+		return l[s].Make()
 	}
 	s -= len(l)
 	return n[s].Make(md, d+1)
-}
-
-type VectorFields struct {
-	Name string
-	Make func(int, int) VectorField
 }
 
 func MakeVectorField(md, d int) VectorField {
@@ -103,7 +106,7 @@ func MakeColorField(md, d int) ColorField {
 
 // Leaves (don't call any fields)
 
-func MakeGenerator(md, d int) Field {
+func MakeGenerator() Field {
 	f := NewGenerator(PickLambda(), rand.Float64()*math.Pi*2, MakeGeneratorFunc())
 	f.Phase = rand.Float64()
 	f.FFunc = MakeFilter()
@@ -116,21 +119,25 @@ type GenFunc struct {
 }
 
 var GFOptions = []GenFunc{
-	{"Zero", MakeZero},
+	{"Flat", MakeFlat},
 	{"Sin", MakeSin},
 	{"Square", MakeSquare},
 	{"Triangle", MakeTriangle},
 	{"Saw", MakeSaw},
 	{"NL1", MakeNL1},
 	{"NL2", MakeNL2},
+	{"N1D", MakeN1D},
 }
 
 func MakeGeneratorFunc() func(float64) float64 {
-	return GFOptions[rand.Intn(len(GFOptions))].Make()
+	res := GFOptions[rand.Intn(len(GFOptions))]
+	fmt.Printf(" GF: %s\n", res.Name)
+	return res.Make()
 }
 
-func MakeZero() func(float64) float64 {
-	return Zero
+func MakeFlat() func(float64) float64 {
+	fgf := &FlatGF{rand.Float64()*2 - 1}
+	return fgf.Flat
 }
 
 func MakeSin() func(float64) float64 {
@@ -183,7 +190,9 @@ var NLFOptions = []NLFunc{
 }
 
 func MakeNL() util.NonLinear {
-	return NLFOptions[rand.Intn(len(NLFOptions))].Make()
+	res := NLFOptions[rand.Intn(len(NLFOptions))]
+	fmt.Printf(" %s\n", res.Name)
+	return res.Make()
 }
 
 func MakeNLLinear() util.NonLinear {
@@ -246,7 +255,12 @@ func MakeNLP5() util.NonLinear {
 	return &util.NLP5{}
 }
 
-func MakePerlin(md, d int) Field {
+func MakeN1D() func(float64) float64 {
+	gf := NewNoise1DGF(6)
+	return gf.Noise1D
+}
+
+func MakePerlin() Field {
 	xfm := g2d.NewAff3()
 	xfm.Scale(0.01, 0.01)
 	f := NewPerlin()
@@ -254,8 +268,16 @@ func MakePerlin(md, d int) Field {
 	return &Transform{f, xfm}
 }
 
-func MakeNonLinear(md, d int) Field {
-	f := NewNonLinear(PickLambda(), PickLambda(), rand.Float64()*math.Pi*2, MakeNL(), 10)
+func MakeDistortedPerlin() Field {
+	xfm := g2d.NewAff3()
+	xfm.Scale(0.01, 0.01)
+	f := NewDistort(NewPerlin(), 1)
+	f.FFunc = MakeFilter()
+	return &Transform{f, xfm}
+}
+
+func MakeNonLinear() Field {
+	f := NewNonLinear(PickLambda(), PickLambda(), rand.Float64()*math.Pi*2, MakeNL(), 2)
 	f.PhaseX = rand.Float64()
 	f.PhaseY = rand.Float64()
 	switch rand.Intn(3) {
@@ -274,15 +296,20 @@ func MakeNonLinear(md, d int) Field {
 func MakeFractal(md, d int) Field {
 	lac := 2.0
 	hurst := 1.0
-	octs := 3
+	octs := float64(rand.Intn(3))
 	xfm := g2d.NewAff3()
 	xfm.Scale(lac, lac)
+	xfm.Rotate(rand.Float64() * math.Pi)
 	if rand.Intn(2) == 0 {
 		fbm := NewFBM(hurst, lac)
-		return &Fractal{MakeField(md, d+1), xfm, fbm.Combine, MakeFilter(), octs, 0, 0}
+		res := NewFractal(MakeField(md, d+1), xfm, fbm.Combine, octs)
+		res.FFunc = MakeFilter()
+		return res
 	}
 	mf := NewMF(hurst, lac, 0.5)
-	return &Fractal{MakeField(md, d+1), xfm, mf.Combine, MakeFilter(), octs, 0, 1}
+	res := NewFractal(MakeField(md, d+1), xfm, mf.Combine, octs)
+	res.FFunc = MakeFilter()
+	return res
 }
 
 func MakeDistort(md, d int) Field {
@@ -382,7 +409,7 @@ func MakeCombiner3Func() func(float64, float64, float64) float64 {
 }
 
 func MakeDisplace(md, d int) Field {
-	return &Displace{MakeField(md, d+1), MakeField(md, d+1), MakeField(md, d+1), 10, 10}
+	return NewDisplace(MakeField(md, d+1), MakeField(md, d+1), MakeField(md, d+1), 10)
 }
 
 func MakeColor(md, d int) ColorField {
@@ -408,10 +435,10 @@ func MakeColorSubstitute(md, d int) ColorField {
 func MakeFilter() func(float64) float64 {
 	switch rand.Intn(20) {
 	case 0:
-		fv := &FilterVals{1, 0, 13}
+		fv := &FilterVals{1, 0, int(PickLambda())}
 		return fv.Quantize
 	case 1:
-		rv := NewRandFV(1, 0, 17)
+		rv := NewRandFV(1, 0, int(PickLambda()))
 		return rv.Quantize
 	}
 	return nil
@@ -423,4 +450,45 @@ var Lambdas = []float64{
 
 func PickLambda() float64 {
 	return Lambdas[rand.Intn(len(Lambdas))]
+}
+
+// Component
+
+func MakeComponent() *Component {
+	// 2 fractals feeding displacement
+	disp := MakeComponentFractal() // Use same for both x and y
+	amt := rand.Float64()*10 + 1
+	src := NewDisplace(MakeComponentFractal(), disp, disp, amt)
+
+	// Emit color, alpha and bump map
+	c1, c2, c3 := g2dcol.Random(), g2dcol.Random(), g2dcol.Random()
+	return NewComponent(src, c1, c2, c3, MakeNL(), MakeLerp(), 20)
+}
+
+func MakeComponentFractal() Field {
+	// 1 or 2 leaves, combined
+	var src Field
+	if rand.Intn(2) == 0 {
+		src = MakeLeaf()
+	} else {
+		src = &Combiner2{MakeLeaf(), MakeLeaf(), MakeCombiner2Func(), MakeFilter()}
+	}
+
+	// fractal
+	lac := 2.0
+	hurst := 1.0
+	octs := float64(rand.Intn(3))
+	xfm := g2d.NewAff3()
+	xfm.Scale(lac, lac)
+	xfm.Rotate(rand.Float64() * math.Pi)
+	if rand.Intn(2) == 0 {
+		fbm := NewFBM(hurst, lac)
+		ff := NewFractal(src, xfm, fbm.Combine, octs)
+		ff.FFunc = MakeFilter()
+		return ff
+	}
+	mf := NewMF(hurst, lac, 0.5)
+	ff := NewFractal(src, xfm, mf.Combine, octs)
+	ff.FFunc = MakeFilter()
+	return ff
 }
