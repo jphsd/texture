@@ -4,20 +4,28 @@ import (
 	g2d "github.com/jphsd/graphics2d"
 )
 
+// IFS represents a collection of affine transforms comprising an iterated function system. The combiner function
+// is usually the union of the sub evaluations but other combiners can be used, for example the ones used in
+// Fractal.
 type IFS struct {
 	Src   Field
-	Xfms  []*g2d.Aff3
+	Xfms  []*g2d.Aff3 // Inverses of the IFS contractive affine transformations
 	CFunc func(...float64) float64
 	FFunc func(float64) float64
 	Itr   int
 }
 
-// xfms are the inverses of the contractive affine transformations
-
+// NewIFS returns a new instance of IFS. Note that the number of sub evaluations required is the number of
+// transforms to the power of the number of iterations per evaluation.
 func NewIFS(src Field, xfms []*g2d.Aff3, comb func(...float64) float64, itr int) *IFS {
-	return &IFS{src, xfms, comb, nil, itr}
+	invxfms := make([]*g2d.Aff3, len(xfms))
+	for i, xfm := range xfms {
+		invxfms[i], _ = xfm.InverseOf()
+	}
+	return &IFS{src, invxfms, comb, nil, itr}
 }
 
+// Eval2 implements the Field interface.
 func (f *IFS) Eval2(x, y float64) float64 {
 	q := make([][]float64, 0, len(f.Xfms))
 	q = append(q, []float64{x, y})
@@ -44,6 +52,7 @@ func (f *IFS) Eval2(x, y float64) float64 {
 	return f.FFunc(v)
 }
 
+// Union returns the largest of the input values.
 func Union(values ...float64) float64 {
 	res := -1.0
 	for _, v := range values {

@@ -31,7 +31,7 @@ func NewPerlin() *Perlin {
 }
 
 // Eval2 calculates the value at x,y based on the interpolated gradients of the four corners
-// of the square which x,y resides in.
+// of the square which x,y resides in. It implements the Field interface.
 func (p *Perlin) Eval2(x, y float64) float64 {
 	ix, iy := math.Floor(x), math.Floor(y)
 	rx, ry := x-ix, y-iy

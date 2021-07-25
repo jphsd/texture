@@ -19,7 +19,7 @@ type defaultMaterial struct {
 // components.
 var DefaultMaterial = &defaultMaterial{color.NewFRGBA(col.White), color.NewFRGBA(col.White)}
 
-// Eval2 implements the Eval2 function in the Material interface.
+// Eval2 implements the Material interface.
 func (d *defaultMaterial) Eval2(x, y float64) (*color.FRGBA, *color.FRGBA, *color.FRGBA, *color.FRGBA, float64) {
 	return nil, d.Ambient, d.Diffuse, nil, 0
 }

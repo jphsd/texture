@@ -5,7 +5,9 @@ import (
 	"math"
 )
 
-// Only one of OffsetX, OffsetY can be non-zero
+// Triangles renders triangles (defined in [0,1]) at the supplied values into the rectangles defined by the
+// two lambdas. Note only one of OffsetX, OffsetY can be non-zero. An optional filter can be specified. This
+// structure allows any shape to be expressed as triangles and rendered into textures.
 type Triangles struct {
 	LambdaX, LambdaY float64 // [1,...)
 	PhaseX, PhaseY   float64 // [0,1]
@@ -16,6 +18,9 @@ type Triangles struct {
 	Values           []float64
 }
 
+// NewTriangles returns a new instance of Triangles based on the supplied slice of triangle points. Each triangle
+// is rendered with the matching value from values. The triangles are rendered in order, so if a point is in more
+// than one triangle, the point will return the value associated with the last triangle.
 func NewTriangles(lambdaX, lambdaY, theta float64, triangles [][][]float64, values []float64) *Triangles {
 	if lambdaX < 1 {
 		lambdaX = 1
@@ -65,6 +70,7 @@ func trianglesToTri(tris [][][]float64) []tri {
 	return res
 }
 
+// Eval2 implements the Field interface.
 func (t *Triangles) Eval2(x, y float64) float64 {
 	u := x*t.CosTh + y*t.SinTh
 	v := -x*t.SinTh + y*t.CosTh
@@ -87,6 +93,7 @@ func (t *Triangles) Eval2(x, y float64) float64 {
 	return t.FFunc(res)
 }
 
+// XYToUV converts values in (-inf,inf) to [0,1] based on the generator's orientation, lambdas and phase values.
 func (t *Triangles) XYToUV(x, y float64) (float64, float64) {
 	nx := 0
 	for x < 0 {

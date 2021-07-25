@@ -5,5 +5,6 @@ Package surface contains functions that populate images with lit textured surfac
 	Ambient
     Directional
   Material
+  BumpMap
 */
 package surface

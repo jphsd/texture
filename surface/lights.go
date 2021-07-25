@@ -28,7 +28,7 @@ func NewAmbient(col col.Color) *Ambient {
 	return &Ambient{color.NewFRGBA(col)}
 }
 
-// Eval2 implements the Eval2 function of the Light interface.
+// Eval2 implements the Light interface.
 func (a *Ambient) Eval2(x, y float64) (*color.FRGBA, []float64, float64, float64) {
 	return a.Color, nil, -1, 0
 }
@@ -41,11 +41,11 @@ type Directional struct {
 
 // NewDirectional returns a new directional light source.
 func NewDirectional(col col.Color, dir []float64) *Directional {
-	dir = Norm(dir)
+	dir = Unit(dir)
 	return &Directional{color.NewFRGBA(col), dir}
 }
 
-// Eval2 implements the Eval2 function of the Light interface.
+// Eval2 implements the Light interface.
 func (d *Directional) Eval2(x, y float64) (*color.FRGBA, []float64, float64, float64) {
 	return d.Color, d.Direction, -1, 0
 }

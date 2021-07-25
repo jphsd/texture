@@ -14,12 +14,13 @@ type BumpMap struct {
 	Normals texture.VectorField
 }
 
+// Eval2 implements the ColorField interface.
 func (bm *BumpMap) Eval2(x, y float64) color.Color {
 	// For any point, the color rendered is the sum of the ambient and the diffuse lights
 
 	normals := bm.Normals
 	if normals == nil {
-		normals = &texture.DefaultNormal{}
+		normals = texture.DefaultNormal
 	}
 
 	material := bm.Mat

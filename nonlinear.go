@@ -5,6 +5,7 @@ import (
 	"math"
 )
 
+// NonLinear is used to create a field of circles that uses a non-linear function to fill the circles.
 type NonLinear struct {
 	LambdaX, LambdaY float64 // [1,...)
 	PhaseX, PhaseY   float64 // [0,1]
@@ -15,6 +16,8 @@ type NonLinear struct {
 	Dist, Inset      float64
 }
 
+// NewNonLinear creates a new instance of NonLinear. A circle/elipse is rendered using the supplied
+// non-linear function and inset within a a box of size lambdaX by lambdaY.
 func NewNonLinear(lambdaX, lambdaY, theta float64, nl util.NonLinear, inset float64) *NonLinear {
 	if lambdaX < 1 {
 		lambdaX = 1
@@ -54,6 +57,7 @@ func NewNonLinear(lambdaX, lambdaY, theta float64, nl util.NonLinear, inset floa
 	return &NonLinear{lambdaX, lambdaY, 0, 0, 0, 0, nil, ct, st, nl, dist, inset}
 }
 
+// Eval2 implements the Field interface.
 func (nl *NonLinear) Eval2(x, y float64) float64 {
 	u := x*nl.CosTh + y*nl.SinTh
 	v := -x*nl.SinTh + y*nl.CosTh
@@ -74,6 +78,7 @@ func (nl *NonLinear) Eval2(x, y float64) float64 {
 	return nl.FFunc(res*2 - 1)
 }
 
+// XYToUV converts values in (-inf,inf) to [0,1] based on the generator's orientation, lambdas and phase values.
 func (nl *NonLinear) XYToUV(x, y float64) (float64, float64) {
 	nx := 0
 	for x < 0 {

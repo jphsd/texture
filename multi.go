@@ -5,6 +5,7 @@ import (
 	"math/rand"
 )
 
+// Multi provides support for a generator function over multiple different wave lengths rather than a fixed one.
 type Multi struct {
 	Sums         []float64
 	Sum          float64
@@ -16,6 +17,7 @@ type Multi struct {
 	CosTh, SinTh float64
 }
 
+// NewMulti is similar to NewGenerator but takes multiple lambdas.
 func NewMulti(lambdas []float64, theta float64, f func(float64) float64) *Multi {
 	sums := make([]float64, len(lambdas))
 	sum := 0.0
@@ -30,6 +32,7 @@ func NewMulti(lambdas []float64, theta float64, f func(float64) float64) *Multi 
 	return &Multi{sums, sum, lambdas, 0.5, 0, f, nil, math.Cos(theta), math.Sin(theta)}
 }
 
+// Eval2 implements the Field interface.
 func (g *Multi) Eval2(x, y float64) float64 {
 	v := x*g.CosTh + y*g.SinTh
 	if g.FFunc == nil {
@@ -38,6 +41,7 @@ func (g *Multi) Eval2(x, y float64) float64 {
 	return g.FFunc(g.GFunc(g.VtoT(v)))
 }
 
+// VToT converts a value in (-inf,inf) to [0,1] based on the multi-generator's orientation, lambdas and phase values.
 func (g *Multi) VtoT(v float64) float64 {
 	// Vs Div and Floor ...
 	for v < 0 {
@@ -65,6 +69,7 @@ func (g *Multi) VtoT(v float64) float64 {
 	return 0.5*(t-g.Center)/(1-g.Center) + 0.5
 }
 
+// Random is a utility function to generate a multi-generator with a collection of wavelenghts.
 func Random(n int, lambda float64, theta float64, f func(float64) float64) *Multi {
 	// Generate n lambdas between 50 to 100% of lambda
 	lambdas := make([]float64, n)

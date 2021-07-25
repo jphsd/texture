@@ -25,7 +25,7 @@ func (s *Surface) Eval2(x, y float64) col.Color {
 	material := s.Mat
 	normals := s.Normals
 	if normals == nil {
-		normals = &texture.DefaultNormal{}
+		normals = texture.DefaultNormal
 	}
 	ambient := s.Ambient
 	view := []float64{0, 0, 1}
@@ -66,7 +66,7 @@ func (s *Surface) Eval2(x, y float64) col.Color {
 		if spec != nil {
 			if blinn {
 				// Blinn-Phong
-				half := Norm([]float64{dir[0] + view[0], dir[1] + view[1], dir[2] + view[2]})
+				half := Unit([]float64{dir[0] + view[0], dir[1] + view[1], dir[2] + view[2]})
 				dp := Dot(half, normal)
 				if dp > 0 {
 					phong := math.Pow(dp, shine*4)

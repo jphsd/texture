@@ -31,7 +31,7 @@ const (
 	epsilon = 0.0000001
 )
 
-// Eval2 returns the values [-1,1] of the field at x, y.
+// Eval2 implements the Field interface.
 func (f *Image) Eval2(x, y float64) []float64 {
 	if x < 0 || x >= f.Max[0] || y < 0 || y >= f.Max[1] {
 		return []float64{0, 0, 0, 1}
