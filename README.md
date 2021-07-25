@@ -3,7 +3,7 @@
 
 A package for the procedural generation of textures.
 
-Based on the ideas contained in the Bryce 3D deep textue editor.
+Based on the ideas contained in the Bryce 3D deep texture editor.
 
 The primary interfaces allow for the evaluation of a value, vector or color field at any point in the XY plane.
 
