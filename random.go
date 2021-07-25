@@ -10,6 +10,7 @@ import (
 	"math/rand"
 )
 
+// Leaf describes a Field that has no predecessors.
 type Leaf struct {
 	Name string
 	Make func() Field
@@ -22,6 +23,7 @@ var LeafOptions = []Leaf{
 	{"NonLinear", MakeNonLinear},
 }
 
+// Node describes a Field that has predecessors.
 type Node struct {
 	Name string
 	Make func(int, int) Field
@@ -29,6 +31,7 @@ type Node struct {
 
 var NodeOptions []Node
 
+// GetNodes returns a slice of the available nodes.
 func GetNodes() []Node {
 	// Lazy initialization to prevent compiler complaining
 	// about initialization loops
@@ -48,17 +51,20 @@ func GetNodes() []Node {
 	return NodeOptions
 }
 
+// MakeLeaf creates a new leaf.
 func MakeLeaf() Field {
 	res := LeafOptions[rand.Intn(len(LeafOptions))]
 	fmt.Printf("%s\n", res.Name)
 	return res.Make()
 }
 
+// MakeNode creates a new node.
 func MakeNode(md, d int) Field {
 	n := GetNodes()
 	return n[rand.Intn(len(n))].Make(md, d+1)
 }
 
+// MakeField creates either a new leaf or node.
 func MakeField(md, d int) Field {
 	l := LeafOptions
 	if d >= md {
@@ -74,23 +80,28 @@ func MakeField(md, d int) Field {
 	return n[s].Make(md, d+1)
 }
 
+// MakeVectorField creates a new VectorField.
 func MakeVectorField(md, d int) VectorField {
 	return MakeNormal(md, d+1)
 }
 
-type ColorFields struct {
+// ColorFieldOpts describes the available ColorField functions.
+type ColorFieldOpts struct {
 	Name string
 	Make func(int, int) ColorField
 }
 
-var ColorFieldOptions []ColorFields
+var ColorFieldOptions []ColorFieldOpts
 
-func GetColorFields() []ColorFields {
+// GetColorFields returns the list of ColorField functions.
+func GetColorFields() []ColorFieldOpts {
 	// Lazy initialization to prevent compiler complaining
 	// about initialization loops
 	if ColorFieldOptions == nil {
-		ColorFieldOptions = []ColorFields{
+		ColorFieldOptions = []ColorFieldOpts{
 			{"Color", MakeColor},
+			{"ColorSinCos", MakeColorSinCos},
+			{"ColorFields", MakeColorFields},
 			{"ColorConv", MakeColorConv},
 			{"ColorBlend", MakeColorBlend},
 			{"ColorSubstitute", MakeColorSubstitute},
@@ -99,13 +110,15 @@ func GetColorFields() []ColorFields {
 	return ColorFieldOptions
 }
 
+// MakeColorField creates a new color field.
 func MakeColorField(md, d int) ColorField {
 	cf := GetColorFields()
 	return cf[rand.Intn(len(cf))].Make(md, d+1)
 }
 
-// Leaves (don't call any fields)
+// The following are Leaves (don't call any fields)
 
+// Make a new field generator.
 func MakeGenerator() Field {
 	f := NewGenerator(PickLambda(), rand.Float64()*math.Pi*2, MakeGeneratorFunc())
 	f.Phase = rand.Float64()
@@ -113,6 +126,7 @@ func MakeGenerator() Field {
 	return f
 }
 
+// GenFunc describes generator functions.
 type GenFunc struct {
 	Name string
 	Make func() func(float64) float64
@@ -129,6 +143,7 @@ var GFOptions = []GenFunc{
 	{"N1D", MakeN1D},
 }
 
+// MakeGeneratorFunc creates a generator function.
 func MakeGeneratorFunc() func(float64) float64 {
 	res := GFOptions[rand.Intn(len(GFOptions))]
 	fmt.Printf(" GF: %s\n", res.Name)
@@ -260,6 +275,7 @@ func MakeN1D() func(float64) float64 {
 	return gf.Noise1D
 }
 
+// MakePerlin creates a new field backed by a perlin noise function.
 func MakePerlin() Field {
 	xfm := g2d.NewAff3()
 	xfm.Scale(0.01, 0.01)
@@ -268,6 +284,7 @@ func MakePerlin() Field {
 	return &Transform{f, xfm}
 }
 
+// MakeDistortedPerlin creates a new field backed by a perlin noise function.
 func MakeDistortedPerlin() Field {
 	xfm := g2d.NewAff3()
 	xfm.Scale(0.01, 0.01)
@@ -276,6 +293,7 @@ func MakeDistortedPerlin() Field {
 	return &Transform{f, xfm}
 }
 
+// MakeNonLinear creates a set of circles on the plane using nonlnear functions.
 func MakeNonLinear() Field {
 	f := NewNonLinear(PickLambda(), PickLambda(), rand.Float64()*math.Pi*2, MakeNL(), 2)
 	f.PhaseX = rand.Float64()
@@ -291,8 +309,9 @@ func MakeNonLinear() Field {
 	return f
 }
 
-// Processors
+// Processors - these all require a source input of one form or another.
 
+// MakeFractal creates a new fractal processor.
 func MakeFractal(md, d int) Field {
 	lac := 2.0
 	hurst := 1.0
@@ -312,30 +331,37 @@ func MakeFractal(md, d int) Field {
 	return res
 }
 
+// MakeDistortion creates a new distorted processor.
 func MakeDistort(md, d int) Field {
 	return NewDistort(MakeField(md, d+1), 1)
 }
 
+// MakeSelect creates a new field from a vector field.
 func MakeSelect(md, d int) Field {
 	return &Select{MakeVectorField(md, d+1), rand.Intn(3), MakeFilter()}
 }
 
+// MakeDirection creates a new field from a vector field.
 func MakeDirection(md, d int) Field {
 	return &Direction{MakeVectorField(md, d+1), MakeFilter()}
 }
 
+// MakeMagnitude creates a new field from a vector field.
 func MakeMagnitude(md, d int) Field {
 	return &Magnitude{MakeVectorField(md, d+1), MakeFilter()}
 }
 
+// MakeVectorCombine creates a new field from a vector field.
 func MakeVectorCombine(md, d int) Field {
 	return &VectorCombine{MakeVectorField(md, d+1), MakeCombiner3Func(), MakeFilter()}
 }
 
+// MakeNormal creates a new vector field from a field.
 func MakeNormal(md, d int) VectorField {
 	return NewNormal(MakeField(md, d), 10, 10, 2, 2)
 }
 
+// MakeColorConv creates a new color field from a field.
 func MakeColorConv(md, d int) ColorField {
 	return &ColorConv{MakeField(md, d+1), MakeColorNL()}
 }
@@ -359,8 +385,19 @@ func MakeLerp() func(float64, color.Color, color.Color) color.Color {
 	return lerp
 }
 
-// Combiners
+// MakeColor creates a new color field from a field.
+func MakeColor(md, d int) ColorField {
+	return &Color{MakeField(md, d+1)}
+}
 
+// MakeColorSinCos creates a new color field from a field.
+func MakeColorSinCos(md, d int) ColorField {
+	return &ColorSinCos{MakeField(md, d+1), rand.Intn(6), rand.Intn(2) == 0}
+}
+
+// Combiners - these all require source inputs of one form or another.
+
+// MakeCombiner2 creates a two field combiner.
 func MakeCombiner2(md, d int) Field {
 	return &Combiner2{MakeField(md, d+1), MakeField(md, d+1), MakeCombiner2Func(), MakeFilter()}
 }
@@ -393,11 +430,12 @@ func MakeCombiner2Func() func(float64, float64) float64 {
 	return CF2Options[r].Func
 }
 
+// MakeCombiner3 creates a three field combiner.
 func MakeCombiner3(md, d int) Field {
 	return &Combiner3{MakeField(md, d+1), MakeField(md, d+1), MakeField(md, d+1), MakeCombiner3Func(), MakeFilter()}
 }
 
-func MakeCombiner3Func() func(float64, float64, float64) float64 {
+func MakeCombiner3Func() func(...float64) float64 {
 	if rand.Intn(2) == 0 {
 		return Blend
 	}
@@ -408,21 +446,22 @@ func MakeCombiner3Func() func(float64, float64, float64) float64 {
 	return cf.Substitute
 }
 
+// MakeDisplace creates a displacement of src1 with src2 and src3.
 func MakeDisplace(md, d int) Field {
 	return NewDisplace(MakeField(md, d+1), MakeField(md, d+1), MakeField(md, d+1), 10)
 }
 
-func MakeColor(md, d int) ColorField {
-	if rand.Intn(2) == 0 {
-		return &Color{MakeField(md, d+1), nil, nil, nil, rand.Intn(2) == 0}
-	}
-	return &Color{MakeField(md, d+1), MakeField(md, d+1), MakeField(md, d+1), nil, rand.Intn(2) == 0}
+// MakeColorFields creates a color field from three fields.
+func MakeColorFields(md, d int) ColorField {
+	return &ColorFields{MakeField(md, d+1), MakeField(md, d+1), MakeField(md, d+1), nil, rand.Intn(2) == 0}
 }
 
+// MakeColorBlend creates a color field from two input color fields and a field.
 func MakeColorBlend(md, d int) ColorField {
 	return &ColorBlend{MakeColorField(md, d+1), MakeColorField(md, d+1), MakeField(md, d+1), MakeLerp()}
 }
 
+// MakeColorSubstitute creates a color field from two input color fields and a field.
 func MakeColorSubstitute(md, d int) ColorField {
 	s := rand.Float64()
 	t := rand.Float64()
@@ -454,6 +493,7 @@ func PickLambda() float64 {
 
 // Component
 
+// MakeComponent creates a new component.
 func MakeComponent() *Component {
 	// 2 fractals feeding displacement
 	disp := MakeComponentFractal() // Use same for both x and y
