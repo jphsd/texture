@@ -1,4 +1,5 @@
 # Texture Generation
+[![Go Reference](https://pkg.go.dev/badge/github.com/jphsd/texture.svg)](https://pkg.go.dev/github.com/jphsd/texture)
 [![Go Report Card](https://goreportcard.com/badge/github.com/jphsd/texture)](https://goreportcard.com/report/github.com/jphsd/texture)
 
 A package for the procedural generation of textures.
