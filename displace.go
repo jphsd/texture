@@ -1,6 +1,6 @@
 package texture
 
-// Displace allows a source field to be evaluated locations determing by an offset and scaling of
+// Displace allows a source field to be evaluated locations determining by an offset and scaling of
 // the input x, y coordinates taken from other sources. If Indep is true, then the mapped x, y
 // is independent of the original x, y location.
 type Displace struct {

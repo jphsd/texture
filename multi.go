@@ -69,7 +69,7 @@ func (g *Multi) VtoT(v float64) float64 {
 	return 0.5*(t-g.Center)/(1-g.Center) + 0.5
 }
 
-// Random is a utility function to generate a multi-generator with a collection of wavelenghts.
+// Random is a utility function to generate a multi-generator with a collection of wavelengths.
 func Random(n int, lambda float64, theta float64, f func(float64) float64) *Multi {
 	// Generate n lambdas between 50 to 100% of lambda
 	lambdas := make([]float64, n)

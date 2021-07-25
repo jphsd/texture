@@ -55,7 +55,7 @@ const (
 	MaxOctaves = 10
 )
 
-// FBM holds the precomputed wieghts for an fBM.
+// FBM holds the precomputed weights for an fBM.
 type FBM struct {
 	Weights []float64
 }
