@@ -1,5 +1,7 @@
 # Examples from cmd/component.go
 
+The value field rendered as color, alpha/grayscale and bumpmap fields. 
+
 ![example](/doc/101.png?raw=true "Example")
 ![example](/doc/102.png?raw=true "Example")
 ![example](/doc/103.png?raw=true "Example")
