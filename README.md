@@ -6,7 +6,7 @@ A package for the procedural generation of textures. Based on the ideas containe
 
 ![example](/doc/01.png?raw=true "Example")
 
-More examples [here](/Example1s.md "Examples1") and [here](/Examples2.md "Examples2").
+More examples [here](/Examples1.md "Examples1") and [here](/Examples2.md "Examples2").
 
 The primary interfaces allow for the evaluation of a value, vector or color field at any point in the XY plane.
 
