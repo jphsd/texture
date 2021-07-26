@@ -50,7 +50,7 @@ returns either a value, vector or color. If a type doesn't support the entire 2D
     Mul - product of two sources
     Sub - difference of two sources (s1 - s2)
   Combiner3
-    Substitute - substitue one value for another depending on a third value
+    Substitute - substitute one value for another depending on a third value
   Displace - source displaced by X and Y scaled sources
   Window2 - select between two sources based on a region
 
