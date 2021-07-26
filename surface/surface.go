@@ -18,6 +18,7 @@ type Surface struct {
 
 var blinn = false
 
+// Eval2 implements the ColorField interface.
 func (s *Surface) Eval2(x, y float64) col.Color {
 	// For any point, the color rendered is the sum of the emissive, ambient and the diffuse/specular
 	// contributions from all of the lights.

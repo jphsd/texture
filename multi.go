@@ -41,7 +41,7 @@ func (g *Multi) Eval2(x, y float64) float64 {
 	return g.FFunc(g.GFunc(g.VtoT(v)))
 }
 
-// VToT converts a value in (-inf,inf) to [0,1] based on the multi-generator's orientation, lambdas and phase values.
+// VtoT converts a value in (-inf,inf) to [0,1] based on the multi-generator's orientation, lambdas and phase values.
 func (g *Multi) VtoT(v float64) float64 {
 	// Vs Div and Floor ...
 	for v < 0 {

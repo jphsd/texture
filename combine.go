@@ -100,6 +100,7 @@ func Blend(v ...float64) float64 {
 	return (1-t)*v[0] + t*v[1]
 }
 
+// CF3 holds values for parameterized combiners.
 type CF3 struct {
 	Start, End float64
 }

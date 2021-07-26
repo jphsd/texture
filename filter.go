@@ -12,7 +12,7 @@ func Invert(t float64) float64 {
 	return -t
 }
 
-// FilerChain allows multiple filters to be concatenated.
+// FilterChain allows multiple filters to be concatenated.
 type FilterChain struct {
 	Filters []func(float64) float64
 }

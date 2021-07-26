@@ -52,6 +52,7 @@ func (f *Fractal) Eval2(x, y float64) float64 {
 }
 
 const (
+	// MaxOctaves is the maximum number of iterations a Fractal can perform
 	MaxOctaves = 10
 )
 

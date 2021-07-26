@@ -1,5 +1,6 @@
 package texture
 
+// Distort applies a distortion to a source field based on the values it contains.
 type Distort struct {
 	Src            Field
 	OffsX, OffsY   float64
@@ -8,10 +9,12 @@ type Distort struct {
 	FFunc          func(float64) float64
 }
 
+// NewDistort creates a new Distort instance.
 func NewDistort(src Field, dist float64) *Distort {
 	return &Distort{src, 0.5, 0.5, 0, 3.333, dist, nil}
 }
 
+// Eval2 implements the Field interface.
 func (d *Distort) Eval2(x, y float64) float64 {
 	x += d.OffsX
 	y += d.OffsY

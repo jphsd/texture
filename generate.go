@@ -52,7 +52,7 @@ func (g *Generator) Eval2(x, y float64) float64 {
 	return g.FFunc(g.GFunc(g.VtoT(v)))
 }
 
-// VToT converts a value in (-inf,inf) to [0,1] based on the generator's orientation, lambda and phase values.
+// VtoT converts a value in (-inf,inf) to [0,1] based on the generator's orientation, lambda and phase values.
 func (g *Generator) VtoT(v float64) float64 {
 	// Vs Div and Floor ...
 	for v < 0 {
@@ -71,7 +71,7 @@ func (g *Generator) VtoT(v float64) float64 {
 	return 0.5*(t-g.Center)/(1-g.Center) + 0.5
 }
 
-// FlatFG is a flat generator function and returns a fixed value.
+// FlatGF is a flat generator function and returns a fixed value.
 type FlatGF struct {
 	Val float64
 }

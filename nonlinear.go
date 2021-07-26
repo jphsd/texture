@@ -17,7 +17,7 @@ type NonLinear struct {
 }
 
 // NewNonLinear creates a new instance of NonLinear. A circle/elipse is rendered using the supplied
-// non-linear function and inset within a a box of size lambdaX by lambdaY.
+// non-linear function and inset within a box of size lambdaX by lambdaY.
 func NewNonLinear(lambdaX, lambdaY, theta float64, nl util.NonLinear, inset float64) *NonLinear {
 	if lambdaX < 1 {
 		lambdaX = 1
@@ -61,7 +61,7 @@ func NewNonLinear(lambdaX, lambdaY, theta float64, nl util.NonLinear, inset floa
 func (nl *NonLinear) Eval2(x, y float64) float64 {
 	u := x*nl.CosTh + y*nl.SinTh
 	v := -x*nl.SinTh + y*nl.CosTh
-	u, v = nl.XYToUV(u, v)
+	u, v = nl.XYtoUV(u, v)
 	res := 0.0
 	if u > nl.Inset && u < nl.Dist+nl.Inset && v > nl.Inset && v < nl.Dist+nl.Inset {
 		// Within inset, rescale to [0,1]
@@ -78,8 +78,8 @@ func (nl *NonLinear) Eval2(x, y float64) float64 {
 	return nl.FFunc(res*2 - 1)
 }
 
-// XYToUV converts values in (-inf,inf) to [0,1] based on the generator's orientation, lambdas and phase values.
-func (nl *NonLinear) XYToUV(x, y float64) (float64, float64) {
+// XYtoUV converts values in (-inf,inf) to [0,1] based on the generator's orientation, lambdas and phase values.
+func (nl *NonLinear) XYtoUV(x, y float64) (float64, float64) {
 	nx := 0
 	for x < 0 {
 		x += nl.LambdaX
