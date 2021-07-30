@@ -202,6 +202,7 @@ var NLFOptions = []NLFunc{
 	{"Logistic", MakeNLLogistic},
 	{"NLP3", MakeNLP3},
 	{"NLP5", MakeNLP5},
+	{"NLRand", MakeNLRand},
 }
 
 func MakeNL() util.NonLinear {
@@ -268,6 +269,10 @@ func MakeNLP3() util.NonLinear {
 
 func MakeNLP5() util.NonLinear {
 	return &util.NLP5{}
+}
+
+func MakeNLRand() util.NonLinear {
+	return util.NewNLRand(0.1, 0.05, rand.Intn(2) == 0)
 }
 
 func MakeN1D() func(float64) float64 {

@@ -67,7 +67,7 @@ returns either a value, vector or color. If a type doesn't support the entire 2D
 Converters:
   Color - converts a value field to a gray scale color field
   ColorConv - converts a value field to a color field using a non-linear color map
-  ColorSinCos - converts a value field to a clor field using sin and cos
+  ColorSinCos - converts a value field to a color field using sin and cos
   ColorVector - converts a vector field to a color field (RGB or HSL)
   Normal - converts a value field to a vector field using the finite difference method
   Select - selects one component of a vector field as a value field
