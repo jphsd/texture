@@ -27,7 +27,7 @@ func (bm *BumpMap) Eval2(x, y float64) color.Color {
 	if material == nil {
 		material = DefaultMaterial
 	}
-	_, amb, diff, _, _ := material.Eval2(x, y)
+	_, amb, diff, _, _, _ := material.Eval2(x, y)
 
 	// Ambient
 	ambient := bm.Ambient

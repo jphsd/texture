@@ -5,6 +5,7 @@ import (
 	"github.com/jphsd/texture/color"
 	col "image/color"
 	"math"
+	"math/rand"
 )
 
 // Surface collects the ambient light, lights, a material, and normal map required to describe
@@ -31,7 +32,7 @@ func (s *Surface) Eval2(x, y float64) col.Color {
 	ambient := s.Ambient
 	view := []float64{0, 0, 1}
 
-	emm, amb, diff, spec, shine := material.Eval2(x, y) // Emissive
+	emm, amb, diff, spec, shine, rough := material.Eval2(x, y) // Emissive
 
 	// Emissive
 	lemm := &color.FRGBA{}
@@ -50,6 +51,9 @@ func (s *Surface) Eval2(x, y float64) col.Color {
 
 	// Cummulative diffuse and specular for all lights
 	normal := normals.Eval2(x, y)
+	if rough > 0 {
+		normal = Roughen(rough, normal)
+	}
 	cdiff, cspec := &color.FRGBA{}, &color.FRGBA{}
 	for _, light := range s.Lights {
 		lcol, dir, dist, pow := light.Eval2(x, y)
@@ -86,4 +90,26 @@ func (s *Surface) Eval2(x, y float64) col.Color {
 	col = col.Add(cdiff)
 	col = col.Add(cspec)
 	return col
+}
+
+// Roughen perturbates a vector by mixing it with a randomly orientented unit vector.
+func Roughen(r float64, vec []float64) []float64 {
+	// Construct a random unit vector pointing above the XY plane
+	theta := rand.Float64() * 2 * math.Pi
+	phi := rand.Float64() * math.Pi / 2
+	cp := math.Cos(phi)
+	rv := []float64{cp * math.Cos(theta), cp * math.Sin(theta), math.Sin(phi)}
+
+	// Rotate into same plane as vec if necessary
+	orig := []float64{0, 0, 1}
+	cv := Cross(vec, orig)
+	if cv[0]*cv[0]+cv[1]*cv[1]+cv[2]*cv[2] > 0 {
+		cv[0], cv[1], cv[2] = -cv[0], -cv[1], -cv[2] // Flipping the normal
+		quat := NewQuaternion(cv, math.Acos(Dot(vec, orig)))
+		rv = quat.Apply(rv)[0]
+	}
+
+	// Blend with input vector
+	omr := 1 - r
+	return []float64{omr*vec[0] + r*rv[0], omr*vec[1] + r*rv[1], omr*vec[2] + r*rv[2]}
 }
