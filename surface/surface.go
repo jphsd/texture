@@ -92,11 +92,11 @@ func (s *Surface) Eval2(x, y float64) col.Color {
 	return col
 }
 
-// Roughen perturbates a vector by mixing it with a randomly orientented unit vector.
+// Roughen perturbates a vector by replacing it with a randomly orientented unit vector.
 func Roughen(r float64, vec []float64) []float64 {
-	// Construct a random unit vector pointing above the XY plane
+	// Construct a random unit vector pointing above the XY plane within r * 90 degrees
 	theta := rand.Float64() * 2 * math.Pi
-	phi := rand.Float64() * math.Pi / 2
+	phi := (1 - rand.Float64()*r) * math.Pi / 2
 	cp := math.Cos(phi)
 	rv := []float64{cp * math.Cos(theta), cp * math.Sin(theta), math.Sin(phi)}
 
@@ -109,7 +109,5 @@ func Roughen(r float64, vec []float64) []float64 {
 		rv = quat.Apply(rv)[0]
 	}
 
-	// Blend with input vector
-	omr := 1 - r
-	return []float64{omr*vec[0] + r*rv[0], omr*vec[1] + r*rv[1], omr*vec[2] + r*rv[2]}
+	return rv
 }
