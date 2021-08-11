@@ -46,6 +46,7 @@ func GetNodes() []Node {
 			{"Combiner3", MakeCombiner3},
 			{"Displace", MakeDisplace},
 			{"VectorCombine", MakeVectorCombine},
+			{"Reflect", MakeReflect},
 		}
 	}
 	return NodeOptions
@@ -359,6 +360,14 @@ func MakeMagnitude(md, d int) Field {
 // MakeVectorCombine creates a new field from a vector field.
 func MakeVectorCombine(md, d int) Field {
 	return &VectorCombine{MakeVectorField(md, d+1), MakeCombiner3Func(), MakeFilter()}
+}
+
+// MakeReflect creates a mirror plane in the field.
+func MakeReflect(md, d int) Field {
+	h, w := 600.0, 600.0
+	lp1 := []float64{rand.Float64() * w, rand.Float64() * h}
+	lp2 := []float64{rand.Float64() * w, rand.Float64() * h}
+	return NewReflect(MakeField(md, d+1), lp1, lp2)
 }
 
 // MakeNormal creates a new vector field from a field.
