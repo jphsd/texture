@@ -1,0 +1,15 @@
+# Examples from cmd/kaleidoscope.go
+
+![example](/doc/000000k.png?raw=true "Example")
+![example](/doc/000001k.png?raw=true "Example")
+![example](/doc/000002k.png?raw=true "Example")
+![example](/doc/000003k.png?raw=true "Example")
+![example](/doc/000004k.png?raw=true "Example")
+![example](/doc/000005k.png?raw=true "Example")
+![example](/doc/000006k.png?raw=true "Example")
+![example](/doc/000007k.png?raw=true "Example")
+![example](/doc/000008k.png?raw=true "Example")
+![example](/doc/000009k.png?raw=true "Example")
+![example](/doc/000010k.png?raw=true "Example")
+![example](/doc/000011k.png?raw=true "Example")
+![example](/doc/000012k.png?raw=true "Example")
