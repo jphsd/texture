@@ -11,4 +11,4 @@ More examples [here](/Examples1.md "Examples1"), [here](/Examples2.md "Examples2
 
 The primary interfaces allow for the evaluation of a value, vector or color field at any point in the XY plane.
 
-A subpackage covers the generation of surfaces based on the lights illuminating a material.
+A subpackage covers the generation of surfaces based on lights illuminating a material.
