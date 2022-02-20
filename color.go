@@ -175,6 +175,13 @@ func (c *ColorNL) ColorNLerp(t float64) color.Color {
 	return c.Lerp(nt, c.Colors[i-1], c.Colors[i])
 }
 
+// ColorRGBABiLerp calculates the color value at u, v [0,1] given colors at [0,0], [1,0], [0,1], [1,1] in RGB space.
+func ColorRGBABiLerp(u, v float64, colors []color.Color) color.Color {
+	c1 := ColorRGBALerp(v, colors[0], colors[2])
+	c2 := ColorRGBALerp(v, colors[1], colors[3])
+	return ColorRGBALerp(u, c1, c2)
+}
+
 // ColorRGBALerp calculates the color value at t [0,1] given a start and end color in RGB space.
 func ColorRGBALerp(t float64, start, end color.Color) color.Color {
 	rs, gs, bs, as := start.RGBA() // uint32 [0,0xffff]
