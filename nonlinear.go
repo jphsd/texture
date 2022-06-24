@@ -130,3 +130,22 @@ func (nl *NonLinear) XYtoUV(x, y float64) (float64, float64) {
 	}
 	return u, v
 }
+
+// NLTransform holds the parameters for a non-linear transformation mapping.
+type NLTransform struct {
+	Src    Field
+	NLFunc util.NonLinear
+	FFunc  func(float64) float64
+}
+
+// Eval2 implements the Field interface.
+func (nf *NLTransform) Eval2(x, y float64) float64 {
+	v := (nf.Src.Eval2(x, y) + 1) / 2
+	v = nf.NLFunc.Transform(v)
+	v = v*2 - 1
+
+	if nf.FFunc == nil {
+		return v
+	}
+	return nf.FFunc(v)
+}
