@@ -8,7 +8,7 @@ import (
 	"math"
 )
 
-// Color contains the field to use in the color evaluationi and produces a grayscale color.
+// Color contains the field to use in the color evaluation and produces a grayscale color.
 type Color struct {
 	Src Field
 }

@@ -7,7 +7,7 @@ color package.
 
 All fields provide an Eval2(x, y float64) function which takes any x and y and
 returns either a value, vector or color. If a type doesn't support the entire 2D plane, then it must return 0,
-{0, ... , 0}, or color.Black for values of x and y not supported.
+{0, ..., 0}, or color.Black for values of x and y not supported.
 
 1D Generators (have a wavelength, center offset, phase, angle):
   Flat - produces a flat field
@@ -22,7 +22,7 @@ returns either a value, vector or color. If a type doesn't support the entire 2D
 1D Random/Multiple wavelength versions of the above
 
 2D Generators:
-  Box - ove value if inside box or another if not
+  Box - one value if inside box or another if not
   NonLinear - produces a field filled with circles/elipses using a non-linear function
   Image - produces a field using an input image (converted to Gray16)
   Perlin - produces a field using Ken Perlin's improved noise function
