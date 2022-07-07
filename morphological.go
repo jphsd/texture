@@ -60,6 +60,55 @@ func Dilate(vals []float64) float64 {
 
 // Higher level Morphological operations
 
+// EdgeIn - orig - E
+type EdgeIn struct {
+	Name string
+	Src1 Field
+	Src2 Field
+}
+
+func NewEdgeIn(src Field, supp [][]float64) *EdgeIn {
+	f := NewMorphological(src, supp, ErodeOp)
+	return &EdgeIn{"EdgeIn", src, f}
+}
+
+func (m *EdgeIn) Eval2(x, y float64) float64 {
+	return m.Src1.Eval2(x, y) - m.Src2.Eval2(x, y)
+}
+
+// EdgeOut - D - orig
+type EdgeOut struct {
+	Name string
+	Src1 Field
+	Src2 Field
+}
+
+func NewEdgeOut(src Field, supp [][]float64) *EdgeOut {
+	f := NewMorphological(src, supp, DilateOp)
+	return &EdgeOut{"EdgeOut", f, src}
+}
+
+func (m *EdgeOut) Eval2(x, y float64) float64 {
+	return m.Src1.Eval2(x, y) - m.Src2.Eval2(x, y)
+}
+
+// Edge - D - E
+type Edge struct {
+	Name string
+	Src1 Field
+	Src2 Field
+}
+
+func NewEdge(src Field, supp [][]float64) *Edge {
+	f1 := NewMorphological(src, supp, DilateOp)
+	f2 := NewMorphological(src, supp, ErodeOp)
+	return &Edge{"Edge", f1, f2}
+}
+
+func (m *Edge) Eval2(x, y float64) float64 {
+	return m.Src1.Eval2(x, y) - m.Src2.Eval2(x, y)
+}
+
 // Close - D then E
 type Close struct {
 	Name string
