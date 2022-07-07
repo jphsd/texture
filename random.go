@@ -1,11 +1,10 @@
 package texture
 
 import (
-	"fmt"
+	//"fmt"
 	g2d "github.com/jphsd/graphics2d"
 	g2dcol "github.com/jphsd/graphics2d/color"
-	"github.com/jphsd/graphics2d/util"
-	"image/color"
+	"image"
 	"math"
 	"math/rand"
 )
@@ -17,10 +16,22 @@ type Leaf struct {
 }
 
 var LeafOptions = []Leaf{
-	{"Generator", MakeGenerator},
+	//{"Uniform", MakeUniform},
+	{"LinearGradient", MakeLinearGradient},
+	{"RadialGradient", MakeRadialGradient},
+	{"ConicGradient", MakeConicGradient},
+	{"TiledGradient", MakeTiledGradient},
+	{"Binary", MakeBinary},
 	{"Perlin", MakePerlin},
 	{"DistortedPerlin", MakeDistortedPerlin},
-	{"NonLinear", MakeNonLinear},
+	{"Image", MakeImage},
+	//{"Shape", MakeShape},
+}
+
+// MakeLeaf creates a new leaf.
+func MakeLeaf() Field {
+	res := LeafOptions[rand.Intn(len(LeafOptions))]
+	return res.Make()
 }
 
 // Node describes a Field that has predecessors.
@@ -37,26 +48,34 @@ func GetNodes() []Node {
 	// about initialization loops
 	if NodeOptions == nil {
 		NodeOptions = []Node{
-			{"Fractal", MakeFractal},
+			//{"Transform", MakeTransform}, // Normally combined with something else
+			{"Strip", MakeStrip},
 			{"Distort", MakeDistort},
+			{"Displace", MakeDisplace},
+			{"Reflect", MakeReflect},
+			{"NLFilter", MakeNLFilter},
+			{"QuantizeFilter", MakeQuantizeFilter},
+			{"RandQuantFilter", MakeRandQuantFilter},
+			{"MulCombiner", MakeMulCombiner},
+			{"AddCombiner", MakeAddCombiner},
+			{"SubCombiner", MakeSubCombiner},
+			{"MinCombiner", MakeMinCombiner},
+			{"MaxCombiner", MakeMaxCombiner},
+			{"DiffCombiner", MakeDiffCombiner},
+			{"WindowedCombiner", MakeWindowedCombiner},
+			{"WeightedCombiner", MakeWeightedCombiner},
+			{"Blend", MakeBlend},
+			{"StochasticBlend", MakeStochasticBlend},
+			{"JitterBlend", MakeJitterBlend},
+			{"SubstituteCombiner", MakeSubstituteCombiner},
 			{"Select", MakeSelect},
 			{"Direction", MakeDirection},
 			{"Magnitude", MakeMagnitude},
-			{"Combiner2", MakeCombiner2},
-			{"Combiner3", MakeCombiner3},
-			{"Displace", MakeDisplace},
-			{"VectorCombine", MakeVectorCombine},
-			{"Reflect", MakeReflect},
+			{"Fractal", MakeFractal},
+			{"VariableFractal", MakeVariableFractal},
 		}
 	}
 	return NodeOptions
-}
-
-// MakeLeaf creates a new leaf.
-func MakeLeaf() Field {
-	res := LeafOptions[rand.Intn(len(LeafOptions))]
-	fmt.Printf("%s\n", res.Name)
-	return res.Make()
 }
 
 // MakeNode creates a new node.
@@ -100,7 +119,7 @@ func GetColorFields() []ColorFieldOpts {
 	// about initialization loops
 	if ColorFieldOptions == nil {
 		ColorFieldOptions = []ColorFieldOpts{
-			{"Color", MakeColor},
+			{"ColorGray", MakeColorGray},
 			{"ColorSinCos", MakeColorSinCos},
 			{"ColorFields", MakeColorFields},
 			{"ColorConv", MakeColorConv},
@@ -119,72 +138,132 @@ func MakeColorField(md, d int) ColorField {
 
 // The following are Leaves (don't call any fields)
 
-// Make a new field generator.
-func MakeGenerator() Field {
-	f := NewGenerator(PickLambda(), rand.Float64()*math.Pi*2, MakeGeneratorFunc())
-	f.Phase = rand.Float64()
-	f.FFunc = MakeFilter()
-	return f
+// MakeUniform creates a new Uniform
+func MakeUniform() Field {
+	return NewUniform(rand.Float64()*2 - 1)
 }
 
-// GenFunc describes generator functions.
-type GenFunc struct {
-	Name string
-	Make func() func(float64) float64
+func MakeLinearGradient() Field {
+	f := NewLinearGradient(MakeWave())
+
+	// Wrap it in a Transform
+	xfm := g2d.NewAff3()
+	offs := rand.Float64()*200 - 100
+	rot := rand.Float64() * math.Pi * 2
+	xfm.Rotate(rot)
+	xfm.Translate(offs, 0)
+	return NewTransform(f, xfm)
 }
 
-var GFOptions = []GenFunc{
-	{"Flat", MakeFlat},
-	{"Sin", MakeSin},
-	{"Square", MakeSquare},
-	{"Triangle", MakeTriangle},
-	{"Saw", MakeSaw},
-	{"NL1", MakeNL1},
-	{"NL2", MakeNL2},
-	{"N1D", MakeN1D},
+func MakeRadialGradient() Field {
+	w := MakeWave()
+	f := NewRadialGradient(w)
+
+	// Wrap it in a Transform
+	xfm := g2d.NewAff3()
+	offs := -400.0 // Hack alert - assumes 800x800 image
+	rot := rand.Float64() * math.Pi * 2
+	xfm.Rotate(rot)
+	xfm.Translate(offs, offs)
+	return NewTransform(f, xfm)
 }
 
-// MakeGeneratorFunc creates a generator function.
-func MakeGeneratorFunc() func(float64) float64 {
-	res := GFOptions[rand.Intn(len(GFOptions))]
-	fmt.Printf(" GF: %s\n", res.Name)
-	return res.Make()
+func MakeConicGradient() Field {
+	w := MakeWave()
+	f := NewConicGradient(w)
+
+	// Wrap it in a Transform
+	xfm := g2d.NewAff3()
+	offs := -400.0 // Hack alert - assumes 800x800 image
+	rot := rand.Float64() * math.Pi * 2
+	xfm.Rotate(rot)
+	xfm.Translate(offs, offs)
+	return NewTransform(f, xfm)
 }
 
-func MakeFlat() func(float64) float64 {
-	fgf := &FlatGF{rand.Float64()*2 - 1}
-	return fgf.Flat
+func MakeTiledGradient() Field {
+	var wave Wave
+
+	//Select wave type
+	if rand.Intn(2) > 0 {
+		w := MakePatternWave().(*PatternWave)
+		w.Once = true
+		wave = w
+	} else {
+		w := MakeNLWave().(*NLWave)
+		w.Once = true
+		wave = w
+	}
+
+	var field Field
+	// Select gradient type
+	if rand.Intn(2) > 0 {
+		field = NewRadialGradient(wave)
+	} else {
+		field = NewConicGradient(wave)
+	}
+
+	// Move 0,0 to center
+	l := wave.Lambda()
+	xfm := g2d.NewAff3()
+	xfm.Translate(-l, -l)
+	field = NewTransform(field, xfm)
+
+	// Tile the single wave instance
+	l *= 2
+	field = NewTiler(field, []float64{l, l})
+
+	// Wrap it in a Transform
+	xfm = g2d.NewAff3()
+	offs := rand.Float64()*200 - 100
+	rot := rand.Float64() * math.Pi * 2
+	xfm.Rotate(rot)
+	xfm.Translate(offs, 0)
+	return NewTransform(field, xfm)
 }
 
-func MakeSin() func(float64) float64 {
-	return Sin
+func MakeWave() Wave {
+	if rand.Intn(2) > 0 {
+		return MakePatternWave()
+	}
+	return MakeNLWave()
 }
 
-func MakeSquare() func(float64) float64 {
-	return Square
+// MakePatternWave
+func MakePatternWave() Wave {
+	nl := rand.Intn(5) + 1
+	lambdas := make([]float64, nl)
+	patterns := make([][]float64, nl)
+	for i := 0; i < nl; i++ {
+		lambdas[i] = PickLambda()
+		patterns[i] = MakePattern(5)
+	}
+	return NewPatternWave(lambdas, patterns, rand.Intn(2) > 0, false)
 }
 
-func MakeTriangle() func(float64) float64 {
-	return Triangle
+func MakePattern(n int) []float64 {
+	pat := make([]float64, n)
+	for i := 0; i < n; i++ {
+		pat[i] = rand.Float64()*2 - 1
+	}
+	return pat
 }
 
-func MakeSaw() func(float64) float64 {
-	return Saw
-}
-
-func MakeNL1() func(float64) float64 {
-	gf := &NLGF{MakeNL()}
-	return gf.NL1
-}
-
-func MakeNL2() func(float64) float64 {
-	gf := &NL2GF{MakeNL(), MakeNL()}
-	return gf.NL2
+// MakeNLWave creates a new NLWave
+func MakeNLWave() Wave {
+	nl := rand.Intn(5) + 1
+	lambdas := make([]float64, nl)
+	nlfs := make([]*NonLinear, nl)
+	for i := 0; i < nl; i++ {
+		lambdas[i] = PickLambda()
+		nlfs[i] = MakeNL()
+	}
+	return NewNLWave(lambdas, nlfs, rand.Intn(2) > 0, false)
 }
 
 type NLFunc struct {
 	Name string
-	Make func() util.NonLinear
+	Make func() *NonLinear
 }
 
 var NLFOptions = []NLFunc{
@@ -206,168 +285,217 @@ var NLFOptions = []NLFunc{
 	{"NLRand", MakeNLRand},
 }
 
-func MakeNL() util.NonLinear {
+func MakeNL() *NonLinear {
 	res := NLFOptions[rand.Intn(len(NLFOptions))]
-	fmt.Printf(" %s\n", res.Name)
 	return res.Make()
 }
 
-func MakeNLLinear() util.NonLinear {
-	return &util.NLLinear{}
+func MakeNLLinear() *NonLinear {
+	return NewNLLinear()
 }
 
-func MakeNLSquare() util.NonLinear {
-	return &util.NLSquare{}
+func MakeNLSquare() *NonLinear {
+	return NewNLSquare()
 }
 
-func MakeNLCube() util.NonLinear {
-	return &util.NLCube{}
+func MakeNLCube() *NonLinear {
+	return NewNLCube()
 }
 
-func MakeNLExponential() util.NonLinear {
-	return util.NewNLExponential(10)
+func MakeNLExponential() *NonLinear {
+	return NewNLExponential(10)
 }
 
-func MakeNLLogarithmic() util.NonLinear {
-	return util.NewNLLogarithmic(10)
+func MakeNLLogarithmic() *NonLinear {
+	return NewNLLogarithmic(10)
 }
 
-func MakeNLSin() util.NonLinear {
-	return &util.NLSin{}
+func MakeNLSin() *NonLinear {
+	return NewNLSin()
 }
 
-func MakeNLSin1() util.NonLinear {
-	return &util.NLSin1{}
+func MakeNLSin1() *NonLinear {
+	return NewNLSin1()
 }
 
-func MakeNLSin2() util.NonLinear {
-	return &util.NLSin2{}
+func MakeNLSin2() *NonLinear {
+	return NewNLSin2()
 }
 
-func MakeNLCircle1() util.NonLinear {
-	return &util.NLCircle1{}
+func MakeNLCircle1() *NonLinear {
+	return NewNLCircle1()
 }
 
-func MakeNLCircle2() util.NonLinear {
-	return &util.NLCircle2{}
+func MakeNLCircle2() *NonLinear {
+	return NewNLCircle2()
 }
 
-func MakeNLCatenary() util.NonLinear {
-	return &util.NLCatenary{}
+func MakeNLCatenary() *NonLinear {
+	return NewNLCatenary()
 }
 
-func MakeNLGauss() util.NonLinear {
-	return util.NewNLGauss(1)
+func MakeNLGauss() *NonLinear {
+	return NewNLGauss(1)
 }
 
-func MakeNLLogistic() util.NonLinear {
-	return util.NewNLLogistic(10, 0.5)
+func MakeNLLogistic() *NonLinear {
+	return NewNLLogistic(10, 0.5)
 }
 
-func MakeNLP3() util.NonLinear {
-	return &util.NLP3{}
+func MakeNLP3() *NonLinear {
+	return NewNLP3()
 }
 
-func MakeNLP5() util.NonLinear {
-	return &util.NLP5{}
+func MakeNLP5() *NonLinear {
+	return NewNLP5()
 }
 
-func MakeNLRand() util.NonLinear {
-	return util.NewNLRand(0.1, 0.05, rand.Intn(2) == 0)
+func MakeNLRand() *NonLinear {
+	return NewNLRand(0.1, 0.05, rand.Intn(2) == 0)
 }
 
-func MakeN1D() func(float64) float64 {
-	gf := NewNoise1DGF(6)
-	return gf.Noise1D
+// MakeBinary creates a new field backed by bit noise.
+func MakeBinary() Field {
+	xfm := g2d.NewAff3()
+	xfm.Scale(0.01, 0.01)
+	xfm.Rotate(rand.Float64() * math.Pi * 2)
+	f := NewBinary(16, 16, rand.Int63())
+	return NewTransform(f, xfm)
 }
 
 // MakePerlin creates a new field backed by a perlin noise function.
 func MakePerlin() Field {
 	xfm := g2d.NewAff3()
 	xfm.Scale(0.01, 0.01)
-	f := NewPerlin()
-	f.FFunc = MakeFilter()
-	return &Transform{f, xfm}
+	xfm.Rotate(rand.Float64() * math.Pi * 2)
+	f := NewPerlin(rand.Int63())
+	return NewTransform(f, xfm)
 }
 
 // MakeDistortedPerlin creates a new field backed by a perlin noise function.
 func MakeDistortedPerlin() Field {
-	xfm := g2d.NewAff3()
-	xfm.Scale(0.01, 0.01)
-	f := NewDistort(NewPerlin(), 1)
-	f.FFunc = MakeFilter()
-	return &Transform{f, xfm}
+	return NewDistort(MakePerlin(), 1)
 }
 
-// MakeNonLinear creates a set of circles on the plane using nonlnear functions.
-func MakeNonLinear() Field {
-	f := NewNonLinear(PickLambda(), PickLambda(), rand.Float64()*math.Pi*2, MakeNL(), 2)
-	f.PhaseX = rand.Float64()
-	f.PhaseY = rand.Float64()
-	switch rand.Intn(3) {
-	case 0:
-	case 1:
-		f.OffsetX = 5
-	case 2:
-		f.OffsetY = 5
+var Sample image.Image
+
+func MakeImage() Field {
+	if Sample == nil {
+		return MakeUniform()
 	}
-	f.FFunc = MakeFilter()
-	return f
+
+	iw, ih := Sample.Bounds().Dx(), Sample.Bounds().Dy()
+
+	// Make new field from img
+	f1 := NewImage(Sample)
+	f2 := NewColorToGray(f1)
+	f3 := NewTiler(f2, []float64{float64(iw), float64(ih)})
+	xfm := g2d.NewAff3()
+	xfm.Rotate(rand.Float64() * math.Pi * 2)
+	return NewTransform(f3, xfm)
 }
 
 // Processors - these all require a source input of one form or another.
+
+// MakeTransform creates a new transform processor
+func MakeTransform(md, d int) Field {
+	xfm := g2d.NewAff3()
+	offs := rand.Float64()*200 - 100
+	sx := rand.Float64()*4 - 2
+	sy := rand.Float64()*4 - 2
+	rot := rand.Float64() * math.Pi * 2
+	xfm.Scale(sx, sy)
+	xfm.Rotate(rot)
+	xfm.Translate(offs, 0)
+	return NewTransform(MakeField(md, d+1), xfm)
+}
+
+// MakeStrip creates a new strip processor
+func MakeStrip(md, d int) Field {
+	xfm := g2d.NewAff3()
+	xfm.Rotate(rand.Float64() * math.Pi * 2)
+	y := rand.Float64()*2000 - 1000
+	return NewTransform(NewStrip(MakeField(md, d+1), y), xfm)
+}
 
 // MakeFractal creates a new fractal processor.
 func MakeFractal(md, d int) Field {
 	lac := 2.0
 	hurst := 1.0
-	octs := float64(rand.Intn(3))
+	nocts := rand.Intn(3)
+	octs := float64(nocts)
 	xfm := g2d.NewAff3()
 	xfm.Scale(lac, lac)
 	xfm.Rotate(rand.Float64() * math.Pi)
 	if rand.Intn(2) == 0 {
-		fbm := NewFBM(hurst, lac)
-		res := NewFractal(MakeField(md, d+1), xfm, fbm.Combine, octs)
-		res.FFunc = MakeFilter()
+		fbm := NewFBM(hurst, lac, nocts)
+		res := NewFractal(MakeField(md, d+1), xfm, fbm, octs)
 		return res
 	}
-	mf := NewMF(hurst, lac, 0.5)
-	res := NewFractal(MakeField(md, d+1), xfm, mf.Combine, octs)
-	res.FFunc = MakeFilter()
+	mf := NewMF(hurst, lac, 0.5, nocts)
+	res := NewFractal(MakeField(md, d+1), xfm, mf, octs)
 	return res
 }
 
-// MakeDistortion creates a new distorted processor.
+// MakeVariableFractal creates a new fractal processor.
+func MakeVariableFractal(md, d int) Field {
+	lac := 2.0
+	hurst := 1.0
+	nocts := rand.Intn(5)
+	octs := float64(nocts)
+	xfm := g2d.NewAff3()
+	xfm.Scale(lac, lac)
+	xfm.Rotate(rand.Float64() * math.Pi)
+	if rand.Intn(2) == 0 {
+		fbm := NewFBM(hurst, lac, nocts)
+		res := NewFractal(MakeField(md, d+1), xfm, fbm, octs)
+		return res
+	}
+	mf := NewMF(hurst, lac, 0.5, nocts)
+	res := NewVariableFractal(MakeField(md, d+1), xfm, mf, MakeField(md, d+1), octs)
+	return res
+}
+
+// MakeDistort creates a new distorted processor.
 func MakeDistort(md, d int) Field {
 	return NewDistort(MakeField(md, d+1), 1)
 }
 
 // MakeSelect creates a new field from a vector field.
 func MakeSelect(md, d int) Field {
-	return &Select{MakeVectorField(md, d+1), rand.Intn(3), MakeFilter()}
+	return NewSelect(MakeVectorField(md, d+1), rand.Intn(3))
 }
 
 // MakeDirection creates a new field from a vector field.
 func MakeDirection(md, d int) Field {
-	return &Direction{MakeVectorField(md, d+1), MakeFilter()}
+	return NewDirection(MakeVectorField(md, d+1))
 }
 
 // MakeMagnitude creates a new field from a vector field.
 func MakeMagnitude(md, d int) Field {
-	return &Magnitude{MakeVectorField(md, d+1), MakeFilter()}
-}
-
-// MakeVectorCombine creates a new field from a vector field.
-func MakeVectorCombine(md, d int) Field {
-	return &VectorCombine{MakeVectorField(md, d+1), MakeCombiner3Func(), MakeFilter()}
+	return NewMagnitude(MakeVectorField(md, d+1))
 }
 
 // MakeReflect creates a mirror plane in the field.
 func MakeReflect(md, d int) Field {
-	h, w := 600.0, 600.0
-	lp1 := []float64{rand.Float64() * w, rand.Float64() * h}
-	lp2 := []float64{rand.Float64() * w, rand.Float64() * h}
-	return NewReflect(MakeField(md, d+1), lp1, lp2)
+	a := rand.Float64() * math.Pi * 2
+	dx, dy := math.Cos(a)*400, math.Sin(a)*400 // Hack alert - assumes 800x800
+	return NewReflect(MakeField(md, d+1), []float64{400, 400}, []float64{400 + dx, 400 + dy})
+}
+
+// MakeNLFilter creates a non-linear filter.
+func MakeNLFilter(md, d int) Field {
+	return NewNLFilter(MakeField(md, d+1), MakeNL(), 1, 0)
+}
+
+// MakeQuantizeFilter creates a non-linear filter.
+func MakeQuantizeFilter(md, d int) Field {
+	return NewQuantizeFilter(MakeField(md, d+1), 1, 0, int(PickLambda()))
+}
+
+// MakeRandQuantFilter creates a non-linear filter.
+func MakeRandQuantFilter(md, d int) Field {
+	return NewRandQuantFilter(MakeField(md, d+1), 1, 0, int(PickLambda()))
 }
 
 // MakeNormal creates a new vector field from a field.
@@ -377,87 +505,67 @@ func MakeNormal(md, d int) VectorField {
 
 // MakeColorConv creates a new color field from a field.
 func MakeColorConv(md, d int) ColorField {
-	return &ColorConv{MakeField(md, d+1), MakeColorNL()}
+	return NewColorConv(MakeField(md, d+1), g2dcol.Random(), g2dcol.Random(), nil, nil, LerpType(rand.Intn(3)))
 }
 
-func MakeColorNL() *ColorNL {
-	c1, c2, c3 := g2dcol.Random(), g2dcol.Random(), g2dcol.Random()
-	tval := []float64{rand.Float64()}
-	return NewColorNL(c1, c2, []color.Color{c3}, tval, MakeNL(), MakeLerp())
-	return nil
-}
-
-func MakeLerp() func(float64, color.Color, color.Color) color.Color {
-	lerp := ColorRGBALerp
-	switch rand.Intn(3) {
-	case 0:
-	case 1:
-		lerp = ColorHSLLerp
-	case 2:
-		lerp = ColorHSLLerpS
-	}
-	return lerp
-}
-
-// MakeColor creates a new color field from a field.
-func MakeColor(md, d int) ColorField {
-	return &Color{MakeField(md, d+1)}
+// MakeColorGray creates a new color field from a field.
+func MakeColorGray(md, d int) ColorField {
+	return NewColorGray(MakeField(md, d+1))
 }
 
 // MakeColorSinCos creates a new color field from a field.
 func MakeColorSinCos(md, d int) ColorField {
-	return &ColorSinCos{MakeField(md, d+1), rand.Intn(6), rand.Intn(2) == 0}
+	return NewColorSinCos(MakeField(md, d+1), rand.Intn(6), rand.Intn(2) == 0)
 }
 
 // Combiners - these all require source inputs of one form or another.
 
-// MakeCombiner2 creates a two field combiner.
-func MakeCombiner2(md, d int) Field {
-	return &Combiner2{MakeField(md, d+1), MakeField(md, d+1), MakeCombiner2Func(), MakeFilter()}
+func MakeMulCombiner(md, d int) Field {
+	return NewMulCombiner(MakeField(md, d+1), MakeField(md, d+1))
 }
 
-type CF2s struct {
-	Name string
-	Func func(float64, float64) float64
+func MakeAddCombiner(md, d int) Field {
+	return NewAddCombiner(MakeField(md, d+1), MakeField(md, d+1))
 }
 
-var CF2Options = []CF2s{
-	{"Mul", Mul},
-	{"Add", Add},
-	{"Sub", Sub},
-	{"Min", Min},
-	{"Max", Max},
-	{"Avg", Avg},
-	{"Diff", Diff},
+func MakeSubCombiner(md, d int) Field {
+	return NewSubCombiner(MakeField(md, d+1), MakeField(md, d+1))
 }
 
-func MakeCombiner2Func() func(float64, float64) float64 {
-	n := len(CF2Options)
-	r := rand.Intn(n + 1)
-	if r == n {
-		s := rand.Float64()
-		t := rand.Float64()
-		e := t - s*(t+1)
-		cf := &CF2{s, e}
-		return cf.Substitute
-	}
-	return CF2Options[r].Func
+func MakeMinCombiner(md, d int) Field {
+	return NewMinCombiner(MakeField(md, d+1), MakeField(md, d+1))
 }
 
-// MakeCombiner3 creates a three field combiner.
-func MakeCombiner3(md, d int) Field {
-	return &Combiner3{MakeField(md, d+1), MakeField(md, d+1), MakeField(md, d+1), MakeCombiner3Func(), MakeFilter()}
+func MakeMaxCombiner(md, d int) Field {
+	return NewMaxCombiner(MakeField(md, d+1), MakeField(md, d+1))
 }
 
-func MakeCombiner3Func() func(...float64) float64 {
-	if rand.Intn(2) == 0 {
-		return Blend
-	}
-	s := rand.Float64()
-	t := rand.Float64()
-	e := t - s*(t+1)
-	cf := &CF3{s, e}
-	return cf.Substitute
+func MakeDiffCombiner(md, d int) Field {
+	return NewDiffCombiner(MakeField(md, d+1), MakeField(md, d+1))
+}
+
+func MakeWindowedCombiner(md, d int) Field {
+	return NewWindowedCombiner(MakeField(md, d+1), MakeField(md, d+1), -1/3, 1/3)
+}
+
+func MakeWeightedCombiner(md, d int) Field {
+	return NewWeightedCombiner(MakeField(md, d+1), MakeField(md, d+1), 0.75, 0.25)
+}
+
+func MakeBlend(md, d int) Field {
+	return NewBlend(MakeField(md, d+1), MakeField(md, d+1), MakeField(md, d+1))
+}
+
+func MakeStochasticBlend(md, d int) Field {
+	return NewStochasticBlend(MakeField(md, d+1), MakeField(md, d+1), MakeField(md, d+1))
+}
+
+func MakeJitterBlend(md, d int) Field {
+	return NewJitterBlend(MakeField(md, d+1), MakeField(md, d+1), MakeField(md, d+1), 0.1)
+}
+
+func MakeSubstituteCombiner(md, d int) Field {
+	return NewSubstituteCombiner(MakeField(md, d+1), MakeField(md, d+1), MakeField(md, d+1), -1/3, 1/3)
 }
 
 // MakeDisplace creates a displacement of src1 with src2 and src3.
@@ -467,12 +575,12 @@ func MakeDisplace(md, d int) Field {
 
 // MakeColorFields creates a color field from three fields.
 func MakeColorFields(md, d int) ColorField {
-	return &ColorFields{MakeField(md, d+1), MakeField(md, d+1), MakeField(md, d+1), nil, rand.Intn(2) == 0}
+	return NewColorFields(MakeField(md, d+1), MakeField(md, d+1), MakeField(md, d+1), nil, rand.Intn(2) == 0)
 }
 
 // MakeColorBlend creates a color field from two input color fields and a field.
 func MakeColorBlend(md, d int) ColorField {
-	return &ColorBlend{MakeColorField(md, d+1), MakeColorField(md, d+1), MakeField(md, d+1), MakeLerp()}
+	return NewColorBlend(MakeColorField(md, d+1), MakeColorField(md, d+1), MakeField(md, d+1), LerpType(rand.Intn(3)))
 }
 
 // MakeColorSubstitute creates a color field from two input color fields and a field.
@@ -480,22 +588,10 @@ func MakeColorSubstitute(md, d int) ColorField {
 	s := rand.Float64()
 	t := rand.Float64()
 	e := t - s*(1+t)
-	return &ColorSubstitute{MakeColorField(md, d+1), MakeColorField(md, d+1), MakeField(md, d+1), s, e}
+	return NewColorSubstitute(MakeColorField(md, d+1), MakeColorField(md, d+1), MakeField(md, d+1), s, e)
 }
 
 // Filters
-
-func MakeFilter() func(float64) float64 {
-	switch rand.Intn(20) {
-	case 0:
-		fv := &FilterVals{1, 0, int(PickLambda())}
-		return fv.Quantize
-	case 1:
-		rv := NewRandFV(1, 0, int(PickLambda()))
-		return rv.Quantize
-	}
-	return nil
-}
 
 var Lambdas = []float64{
 	11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97,
@@ -509,40 +605,12 @@ func PickLambda() float64 {
 
 // MakeComponent creates a new component.
 func MakeComponent() *Component {
-	// 2 fractals feeding displacement
-	disp := MakeComponentFractal() // Use same for both x and y
+	// 2 fields feeding displacement
+	disp := MakeField(2, 0)
 	amt := rand.Float64()*10 + 1
-	src := NewDisplace(MakeComponentFractal(), disp, disp, amt)
+	src := NewDisplace(MakeField(6, 0), disp, disp, amt)
 
 	// Emit color, alpha and bump map
 	c1, c2, c3 := g2dcol.Random(), g2dcol.Random(), g2dcol.Random()
-	return NewComponent(src, c1, c2, c3, MakeNL(), MakeLerp(), 20)
-}
-
-func MakeComponentFractal() Field {
-	// 1 or 2 leaves, combined
-	var src Field
-	if rand.Intn(2) == 0 {
-		src = MakeLeaf()
-	} else {
-		src = &Combiner2{MakeLeaf(), MakeLeaf(), MakeCombiner2Func(), MakeFilter()}
-	}
-
-	// fractal
-	lac := 2.0
-	hurst := 1.0
-	octs := float64(rand.Intn(3))
-	xfm := g2d.NewAff3()
-	xfm.Scale(lac, lac)
-	xfm.Rotate(rand.Float64() * math.Pi)
-	if rand.Intn(2) == 0 {
-		fbm := NewFBM(hurst, lac)
-		ff := NewFractal(src, xfm, fbm.Combine, octs)
-		ff.FFunc = MakeFilter()
-		return ff
-	}
-	mf := NewMF(hurst, lac, 0.5)
-	ff := NewFractal(src, xfm, mf.Combine, octs)
-	ff.FFunc = MakeFilter()
-	return ff
+	return NewComponent(src, c1, c2, c3, LerpType(rand.Intn(3)), 20)
 }

@@ -8,23 +8,28 @@ import (
 // Perlin contains the hash structures for generating a noise value between [-1,1).
 // Note noise wraps in 256.
 type Perlin struct {
-	Ph    [512]uint8
-	FFunc func(float64) float64
+	Name string
+	Seed int64
+	ph   [512]uint8
 }
 
 // NewPerlin initializes a new Perlin hash structure.
-func NewPerlin() *Perlin {
+func NewPerlin(seed int64) *Perlin {
 	res := &Perlin{}
-	// Initialize
+	res.Name = "Perlin"
+	res.Seed = seed
+
+	// Initialize hash
 	for i := 0; i < 256; i++ {
-		res.Ph[i] = uint8(i)
+		res.ph[i] = uint8(i)
 	}
 
-	// Scramble
-	rand.Shuffle(256, func(i, j int) { res.Ph[i], res.Ph[j] = res.Ph[j], res.Ph[i] })
+	lr := rand.New(rand.NewSource(seed))
+	// Scramble hash
+	lr.Shuffle(256, func(i, j int) { res.ph[i], res.ph[j] = res.ph[j], res.ph[i] })
 	// And replicate
 	for i := 0; i < 256; i++ {
-		res.Ph[i+256] = res.Ph[i]
+		res.ph[i+256] = res.ph[i]
 	}
 
 	return res
@@ -39,15 +44,12 @@ func (p *Perlin) Eval2(x, y float64) float64 {
 
 	// Select corners from hash of ix and iy % 256
 	hx, hy := int(ix)&0xff, int(iy)&0xff
-	a := int(p.Ph[hx]) + hy
-	b := int(p.Ph[hx+1]) + hy
+	a := int(p.ph[hx]) + hy
+	b := int(p.ph[hx+1]) + hy
 	res := lerp(v,
-		lerp(u, gradient(p.Ph[a], rx, ry), gradient(p.Ph[b], rx-1, ry)),
-		lerp(u, gradient(p.Ph[a+1], rx, ry-1), gradient(p.Ph[b+1], rx-1, ry-1)))
-	if p.FFunc == nil {
-		return res
-	}
-	return p.FFunc(res)
+		lerp(u, gradient(p.ph[a], rx, ry), gradient(p.ph[b], rx-1, ry)),
+		lerp(u, gradient(p.ph[a+1], rx, ry-1), gradient(p.ph[b+1], rx-1, ry-1)))
+	return res
 }
 
 func lerp(t, s, e float64) float64 {

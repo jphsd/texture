@@ -1,54 +1,50 @@
 package texture
 
 import (
-	g2dcol "github.com/jphsd/graphics2d/color"
+	tcol "github.com/jphsd/texture/color"
 	"image"
 	"image/color"
-	"image/draw"
-	"math"
 )
 
 // Image holds the data to support a continuous bicubic interpolation over an image.
 type Image struct {
-	Image        *image.NRGBA
-	Max          []float64
-	LastX, LastY int
-	HSL          bool
+	Name  string
+	image image.Image
+	MinX  int
+	LastX int
+	MinY  int
+	LastY int
 }
 
 // NewImage sets up a new field with the supplied image. The image is converted to a {0, 0}
-// offset image.
+// offset NRGBA image.
 func NewImage(img image.Image) *Image {
-	r := img.Bounds()
-	w, h := r.Dx(), r.Dy()
-	nr := image.Rect(0, 0, w, h)
-	gimg := image.NewNRGBA(nr)
-	draw.Draw(gimg, nr, img, r.Min, draw.Src)
-	return &Image{gimg, []float64{float64(w), float64(h)}, w - 1, h - 1, false}
+	rect := img.Bounds()
+	return &Image{"Image", img, rect.Min.X, rect.Max.X - 1, rect.Min.Y, rect.Max.Y - 1}
 }
 
-const (
-	epsilon = 0.0000001
-)
-
-// Eval2 implements the Field interface.
-func (f *Image) Eval2(x, y float64) []float64 {
-	if x < 0 || x >= f.Max[0] || y < 0 || y >= f.Max[1] {
-		return []float64{0, 0, 0, 1}
+// Eval2 implements the ColorField interface.
+func (f *Image) Eval2(x, y float64) color.Color {
+	// Image.At is defined over the entire plane.
+	if _, ok := f.image.(*image.Uniform); ok {
+		return f.image.At(0, 0)
 	}
-	ix, iy := int(math.Floor(x+epsilon)), int(math.Floor(y+epsilon))
+
+	ix, iy := int(x), int(y)
+	if ix < f.MinX || ix > f.LastX || iy < f.MinY || iy > f.LastY {
+		return color.Black
+	}
 	rx, ry := x-float64(ix), y-float64(iy)
 	p := f.getValues(ix, iy)
-	v := BiCubic(rx, ry, p)
-	// Scale from [0,1] to [-1,1]
-	return []float64{v[0]*2 - 1, v[1]*2 - 1, v[2]*2 - 1, v[3]*2 - 1}
+	c := BiCubic(rx, ry, p)
+	return c
 }
 
 // Get 4x4 patch
-func (f *Image) getValues(x, y int) [][][]float64 {
-	res := make([][][]float64, 4)
+func (f *Image) getValues(x, y int) [][]*tcol.FRGBA {
+	res := make([][]*tcol.FRGBA, 4)
 	for r, i := y-1, 0; r < y+3; r++ {
-		res[i] = make([][]float64, 4)
+		res[i] = make([]*tcol.FRGBA, 4)
 		for c, j := x-1, 0; c < x+3; c++ {
 			res[i][j] = f.getValue(c, r)
 			j++
@@ -58,83 +54,97 @@ func (f *Image) getValues(x, y int) [][][]float64 {
 	return res
 }
 
-// Get converted values and handle edges
-func (f *Image) getValue(x, y int) []float64 {
+// Get converted values as FRGBA, and handle edges
+func (f *Image) getValue(x, y int) *tcol.FRGBA {
 	var col color.Color
-	if x < 0 {
-		if y < 0 {
-			col = f.Image.At(0, 0)
+	if x < f.MinX {
+		if y < f.MinY {
+			col = f.image.At(f.MinX, f.MinY)
 		} else if y > f.LastY {
-			col = f.Image.At(0, f.LastY)
+			col = f.image.At(f.MinX, f.LastY)
 		} else {
-			col = f.Image.At(0, y)
+			col = f.image.At(f.MinX, y)
 		}
 	} else if x > f.LastX {
-		if y < 0 {
-			col = f.Image.At(f.LastX, 0)
+		if y < f.MinY {
+			col = f.image.At(f.LastX, f.MinY)
 		} else if y > f.LastY {
-			col = f.Image.At(f.LastX, f.LastY)
+			col = f.image.At(f.LastX, f.LastY)
 		} else {
-			col = f.Image.At(f.LastX, y)
+			col = f.image.At(f.LastX, y)
 		}
-	} else if y < 0 {
-		col = f.Image.At(x, 0)
+	} else if y < f.MinY {
+		col = f.image.At(x, f.MinY)
 	} else if y > f.LastY {
-		col = f.Image.At(x, f.LastY)
+		col = f.image.At(x, f.LastY)
 	} else {
-		col = f.Image.At(x, y)
+		col = f.image.At(x, y)
 	}
-	if f.HSL {
-		// HSLA
-		hsl := g2dcol.NewHSL(col)
-		return []float64{hsl.H, hsl.S, hsl.L, hsl.A}
-	}
-	// NRGBA
-	c, _ := col.(color.NRGBA)
-	r := uint32(c.R)
-	r = r<<8 | r
-	rv := float64(r)
-	rv /= 0xffff
-	g := uint32(c.G)
-	g = g<<8 | g
-	gv := float64(g)
-	gv /= 0xffff
-	b := uint32(c.B)
-	b = b<<8 | b
-	bv := float64(b)
-	bv /= 0xffff
-	a := uint32(c.A)
-	a = a<<8 | a
-	av := float64(a)
-	av /= 0xffff
-	// Scale to [-1,1]
-	return []float64{rv, gv, bv, av}
+
+	fc, _ := tcol.FRGBAModel.Convert(col).(*tcol.FRGBA)
+	return fc
 }
 
-// Cubic calculates the value of f(t) for t in range [0,1] given the values of t at -1, 0, 1, 2 in p[]
-// fitted to a cubic polynomial: f(t) = at^3 + bt^2 + ct + d. Clamped because it over/undershoots.
-func Cubic(t float64, p []float64) float64 {
-	v := p[1] + 0.5*t*(p[2]-p[0]+t*(2.0*p[0]-5.0*p[1]+4.0*p[2]-p[3]+t*(3.0*(p[1]-p[2])+p[3]-p[0])))
+// BiCubic uses Cubic to calculate the value of f(u,v) for u,v in range [0,1).
+func BiCubic(u, v float64, p [][]*tcol.FRGBA) *tcol.FRGBA {
+	row := make([]float64, 4)
+	col := make([]float64, 4)
+
+	// R
+	for j := 0; j < 4; j++ {
+		for i := 0; i < 4; i++ {
+			col[i] = p[i][j].R
+		}
+		row[j] = bcclamp(Cubic(v, col))
+	}
+	r := bcclamp(Cubic(u, row))
+
+	// G
+	for j := 0; j < 4; j++ {
+		for i := 0; i < 4; i++ {
+			col[i] = p[i][j].G
+		}
+		row[j] = bcclamp(Cubic(v, col))
+	}
+	g := bcclamp(Cubic(u, row))
+
+	// B
+	for j := 0; j < 4; j++ {
+		for i := 0; i < 4; i++ {
+			col[i] = p[i][j].B
+		}
+		row[j] = bcclamp(Cubic(v, col))
+	}
+	b := bcclamp(Cubic(u, row))
+
+	// A
+	for j := 0; j < 4; j++ {
+		for i := 0; i < 4; i++ {
+			col[i] = p[i][j].A
+		}
+		row[j] = bcclamp(Cubic(v, col))
+	}
+	a := bcclamp(Cubic(u, row))
+
+	return &tcol.FRGBA{r, g, b, a}
+}
+
+func bcclamp(v float64) float64 {
 	if v < 0 {
-		v = 0
-	} else if v > 1 {
-		v = 1
+		return 0
+	}
+	if v > 1 {
+		return 1
 	}
 	return v
 }
 
-// BiCubic uses Cubic to calculate the value of f(u,v) for u,v in range [0,1].
-func BiCubic(u, v float64, p [][][]float64) []float64 {
-	res := make([]float64, 4)
-	for i := 0; i < 4; i++ {
-		np := make([]float64, 4)
-		np[0] = Cubic(v, p[i][0])
-		np[1] = Cubic(v, p[i][1])
-		np[2] = Cubic(v, p[i][2])
-		np[3] = Cubic(v, p[i][3])
-		res[i] = Cubic(u, np)
-	}
-	return res
+// Cubic calculates the value of f(t) for t in range [0,1] given the values of t at -1, 0, 1, 2 in p[]
+// fitted to a cubic polynomial: f(t) = at^3 + bt^2 + ct + d. Clamped because it over/undershoots.
+// (From graphics2d/util/nlerp.go and https://www.paulinternet.nl/?page=bicubic)
+func Cubic(t float64, p []float64) float64 {
+	v := p[1] + 0.5*t*(p[2]-p[0]+t*(2.0*p[0]-5.0*p[1]+4.0*p[2]-p[3]+t*(3.0*(p[1]-p[2])+p[3]-p[0])))
+	return v
 }
 
 // NewRGBA renders the texture into a new RGBA image.

@@ -7,136 +7,163 @@ import (
 
 // Filter functions map [-1,1] -> [-1,1]
 
-// Invert flips the sign of t.
-func Invert(t float64) float64 {
-	return -t
+// NLFilter holds the parameters for a symmetric non-linear filter mapping.
+type NLFilter struct {
+	Name   string
+	Src    Field
+	NLFunc *NonLinear
+	A, B   float64
 }
 
-// FilterChain allows multiple filters to be concatenated.
-type FilterChain struct {
-	Filters []func(float64) float64
+func NewNLFilter(src Field, nlf *NonLinear, a, b float64) *NLFilter {
+	return &NLFilter{"NLFilter", src, nlf, a, b}
 }
 
-// NewFilterChain returns a FilterChain instance.
-func NewFilterChain(filters ...func(float64) float64) *FilterChain {
-	return &FilterChain{filters}
-}
-
-// Eval applies the filters in the filter chain to the input.
-func (fc *FilterChain) Eval(t float64) float64 {
-	for _, filter := range fc.Filters {
-		t = filter(t)
+// Eval2 implements the Field interface.
+func (f *NLFilter) Eval2(x, y float64) float64 {
+	v := f.Src.Eval2(x, y)
+	v *= f.A
+	v += f.B
+	flag := v < 0
+	if flag {
+		v = -v
 	}
-	return t
+	v = f.NLFunc.NLF.Transform(v)
+	if flag {
+		v = -v
+	}
+	return v
 }
 
-// FilterVals provides parameterization for filter functions.
-type FilterVals struct {
+// InvertFilter flips the sign of v.
+type InvertFilter struct {
+	Name string
+	Src  Field
+}
+
+func NewInvertFilter(src Field) *InvertFilter {
+	return &InvertFilter{"InvertFilter", src}
+}
+
+// Eval2 implements the Field interface.
+func (f *InvertFilter) Eval2(x, y float64) float64 {
+	return 0 - f.Src.Eval2(x, y)
+}
+
+// Quantize maps Av+B into one of C buckets.
+type QuantizeFilter struct {
+	Name string
+	Src  Field
 	A, B float64
 	C    int
 }
 
-// Quantize maps At+B into one of C buckets.
-func (fv *FilterVals) Quantize(t float64) float64 {
-	// Quantize(aX+b)
-	t *= fv.A
-	t += fv.B
-	t = clamp(t)
-	t = (t + 1) / 2
-	c := float64(fv.C)
+func NewQuantizeFilter(src Field, a, b float64, c int) *QuantizeFilter {
+	return &QuantizeFilter{"QuantizeFilter", src, a, b, c}
+}
+
+// Eval2 implements the Field interface.
+func (f *QuantizeFilter) Eval2(x, y float64) float64 {
+	v := f.Src.Eval2(x, y)
+	v *= f.A
+	v += f.B
+	v = clamp(v)
+	v = (v + 1) / 2
+	c := float64(f.C)
 	if c < 2 {
 		c = 2
 	}
-	t *= c
-	return clamp(2*math.Floor(t)/(c-1) - 1)
+	v *= c
+	return clamp(2*math.Floor(v)/(c-1) - 1)
 }
 
 // Clip limits At+B to [-1,1].
-func (fv *FilterVals) Clip(t float64) float64 {
-	// Clip(aX+b)
-	t *= fv.A
-	t += fv.B
-	return clamp(t)
+type ClipFilter struct {
+	Name string
+	Src  Field
+	A, B float64
 }
 
-// Sine returns Sin(At) + B (clamped).
-func (fv *FilterVals) Sine(t float64) float64 {
-	// Sine(aX)+b
-	t = math.Sin(fv.A*t) + fv.B
-	return clamp(t)
+func NewClipFilter(src Field, a, b float64) *ClipFilter {
+	return &ClipFilter{"ClipFilter", src, a, b}
+}
+
+// Eval2 implements the Field interface.
+func (f *ClipFilter) Eval2(x, y float64) float64 {
+	v := f.Src.Eval2(x, y)
+	v *= f.A
+	v += f.B
+	return clamp(v)
 }
 
 // Abs returns Abs(At+B) (clamped).
-func (fv *FilterVals) Abs(t float64) float64 {
-	// Abs(aX+b)
-	t *= fv.A
-	t += fv.B
-	if t < 0 {
-		t = -t
+type AbsFilter struct {
+	Name string
+	Src  Field
+	A, B float64
+}
+
+func NewAbsFilter(src Field, a, b float64) *AbsFilter {
+	return &AbsFilter{"AbsFilter", src, a, b}
+}
+
+// Eval2 implements the Field interface.
+func (f *AbsFilter) Eval2(x, y float64) float64 {
+	v := f.Src.Eval2(x, y)
+	v *= f.A
+	v += f.B
+	if v < 0 {
+		v = -v
 	}
-	return clamp(t)
+	return clamp(v)
 }
 
-// Pow returns t^A + B (clamped).
-func (fv *FilterVals) Pow(t float64) float64 {
-	// X^a+b
-	t = math.Pow(t, fv.A) + fv.B
-	return clamp(t)
+// Fold wraps values (aX+b) outside of the domain [-1,1] back into it.
+type FoldFilter struct {
+	Name string
+	Src  Field
+	A, B float64
 }
 
-// Gaussian returns Gaussian(A(t+B)) (clamped).
-func (fv *FilterVals) Gaussian(t float64) float64 {
-	// Gaussian(a(X+b))
-	t += fv.B
-	t *= fv.A
-	t = math.Pow(math.E, -t*t)
-	return clamp(t)
+func NewFoldFilter(src Field, a, b float64) *FoldFilter {
+	return &FoldFilter{"FoldFilter", src, a, b}
 }
 
-// Fold wraps values outside of the domain [-1,1] back into it.
-func (fv *FilterVals) Fold(t float64) float64 {
-	// Fold(aX+b)
-	t *= fv.A
-	t += fv.B
+// Eval2 implements the Field interface.
+func (f *FoldFilter) Eval2(x, y float64) float64 {
+	v := f.Src.Eval2(x, y)
+	v *= f.A
+	v += f.B
 
 	// Map [-1,1] -> [0,1]
-	t = (t + 1) / 2
+	v = (v + 1) / 2
 
-	if t < 0 {
-		t = -t
+	if v < 0 {
+		v = -v
 	}
-	if t > 1 {
-		nt := math.Floor(t)
-		t -= nt
-		// if nt is even, we're going up, else odd
-		if int(nt)%2 != 0 {
-			t = 1 - t
+	if v > 1 {
+		nv := math.Floor(v)
+		v -= nv
+		// if nv is even, we're going up, else odd
+		if int(nv)%2 != 0 {
+			v = 1 - v
 		}
 	}
 
 	// Map [0,1] -> [-1,1]
-	return t*2 - 1
+	return v*2 - 1
 }
 
-func clamp(t float64) float64 {
-	if t < -1 {
-		return -1
-	}
-	if t > 1 {
-		return 1
-	}
-	return t
-}
-
-// RandFV supports a randomized quatization filter.
-type RandFV struct {
+// RandQuantFilter supports a randomized quatization filter.
+type RandQuantFilter struct {
+	Src  Field
 	A, B float64
 	C    int
 	M    []float64
 }
 
-// NewRandFV returns a new RandFV instance for use in quantization.
-func NewRandFV(a, b float64, c int) *RandFV {
+// NewRandQuantFilter returns a new RandFilter instance for use in quantization.
+func NewRandQuantFilter(src Field, a, b float64, c int) *RandQuantFilter {
 	if c < 2 {
 		c = 2
 	}
@@ -147,20 +174,30 @@ func NewRandFV(a, b float64, c int) *RandFV {
 		mm[i] = clamp(mm[i-1] + dx)
 	}
 	rand.Shuffle(c, func(i, j int) { mm[i], mm[j] = mm[j], mm[i] })
-	return &RandFV{a, b, c, mm}
+	return &RandQuantFilter{src, a, b, c, mm}
 }
 
-// Quantize maps At+B into one of C buckets where the bucket value has been randomized.
-func (rv *RandFV) Quantize(t float64) float64 {
-	// Quantize(aX+b)
-	t *= rv.A
-	t += rv.B
-	t = clamp(t)
-	t = (t + 1) / 2
-	t *= float64(rv.C)
-	k := int(math.Floor(t))
-	if k == rv.C {
+// Eval2 implements the Field interface.
+func (f *RandQuantFilter) Eval2(x, y float64) float64 {
+	v := f.Src.Eval2(x, y)
+	v *= f.A
+	v += f.B
+	v = clamp(v)
+	v = (v + 1) / 2
+	v *= float64(f.C)
+	k := int(math.Floor(v))
+	if k == f.C {
 		k--
 	}
-	return rv.M[k]
+	return f.M[k]
+}
+
+func clamp(v float64) float64 {
+	if v < -1 {
+		return -1
+	}
+	if v > 1 {
+		return 1
+	}
+	return v
 }

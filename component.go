@@ -1,12 +1,12 @@
 package texture
 
 import (
-	"github.com/jphsd/graphics2d/util"
 	"image/color"
 )
 
 // Component composes a value, vector and color field.
 type Component struct {
+	Name   string
 	Value  Field
 	Vector VectorField
 	Color  ColorField
@@ -18,10 +18,9 @@ type Component struct {
 // source field, scaled by bscale.
 func NewComponent(src Field,
 	c1, c2, c3 color.Color,
-	nl util.NonLinear,
-	lerp func(float64, color.Color, color.Color) color.Color,
+	lerp LerpType,
 	bscale float64) *Component {
 	normals := NewNormal(src, bscale, bscale, 1, 1)
-	cnl := NewColorNL(c1, c3, []color.Color{c2}, []float64{0.5}, nl, lerp)
-	return &Component{src, normals, &ColorConv{src, cnl}}
+	cc := NewColorConv(src, c1, c3, []color.Color{c2}, []float64{0.5}, lerp)
+	return &Component{"Component", src, normals, cc}
 }

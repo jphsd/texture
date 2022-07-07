@@ -27,7 +27,7 @@ func main() {
 		img := texture.NewRGBA(width, height, cf.Color, 0, 0, 1, 1)
 		draw.Draw(res, image.Rect(0, 0, width, height), img, image.Point{}, draw.Src)
 		// Alpha
-		alpha := &texture.Color{cf.Value}
+		alpha := texture.NewColorGray(cf.Value)
 		img = texture.NewRGBA(width, height, alpha, 0, 0, 1, 1)
 		draw.Draw(res, image.Rect(width, 0, 2*width, height), img, image.Point{}, draw.Src)
 		// Bump Map

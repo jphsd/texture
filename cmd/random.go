@@ -1,34 +1,42 @@
 //go:build ignore
-// +build ignore
 
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	gi "github.com/jphsd/graphics2d/image"
+	g2dimg "github.com/jphsd/graphics2d/image"
 	"github.com/jphsd/texture"
+	"image"
 	"math/rand"
+	"os"
 	"time"
+
+	_ "image/jpeg"
 )
 
 func main() {
 	rand.Seed(int64(time.Now().Nanosecond()))
 
-	width, height := 600, 600
+	width, height := 800, 800
+
+	// Read in Sample.jpg for texture.Sample use in random.go
+	f, err := os.Open("Sample.jpg")
+	if err != nil {
+		panic(err)
+	}
+	texture.Sample, _, err = image.Decode(f)
+	if err != nil {
+		panic(err)
+	}
+	_ = f.Close()
 
 	cnt := 0
-	for true {
+	for cnt < 100 {
+		name := fmt.Sprintf("%06d", cnt)
 		cf := texture.MakeColorField(6, 0)
 		img := texture.NewRGBA(width, height, cf, 0, 0, 1, 1)
-		gi.SaveImage(img, fmt.Sprintf("%06d", cnt))
-
-		// Emit JSON description of cf
-		b, err := json.Marshal(cf)
-		if err != nil {
-			fmt.Printf("%v\n", err)
-		}
-		fmt.Printf("%v\n", b)
+		g2dimg.SaveImage(img, name)
+		texture.SaveJSON(cf, name)
 		cnt++
 	}
 }
