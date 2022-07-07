@@ -6,6 +6,7 @@ import (
 	"fmt"
 	g2dimg "github.com/jphsd/graphics2d/image"
 	"github.com/jphsd/texture"
+	"github.com/jphsd/texture/random"
 	"image"
 	"math/rand"
 	"os"
@@ -24,7 +25,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	texture.Sample, _, err = image.Decode(f)
+	random.Sample, _, err = image.Decode(f)
 	if err != nil {
 		panic(err)
 	}
@@ -33,7 +34,7 @@ func main() {
 	cnt := 0
 	for cnt < 100 {
 		name := fmt.Sprintf("%06d", cnt)
-		cf := texture.MakeColorField(6, 0)
+		cf := random.MakeColorField(6, 0)
 		img := texture.NewRGBA(width, height, cf, 0, 0, 1, 1)
 		g2dimg.SaveImage(img, name)
 		texture.SaveJSON(cf, name)

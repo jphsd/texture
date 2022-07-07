@@ -7,6 +7,7 @@ import (
 	"fmt"
 	gi "github.com/jphsd/graphics2d/image"
 	"github.com/jphsd/texture"
+	"github.com/jphsd/texture/random"
 	"math"
 	"math/rand"
 	"time"
@@ -24,7 +25,7 @@ func main() {
 	cnt := 0
 	for true {
 		a := 0.0
-		cf := texture.MakeColorField(6, 0)
+		cf := random.MakeColorField(6, 0)
 		img := texture.NewRGBA(width, height, cf, 0, 0, 1, 1)
 		gi.SaveImage(img, fmt.Sprintf("%06d-0rr", cnt))
 

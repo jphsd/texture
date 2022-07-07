@@ -7,6 +7,7 @@ import (
 	"fmt"
 	gi "github.com/jphsd/graphics2d/image"
 	"github.com/jphsd/texture"
+	"github.com/jphsd/texture/random"
 	"github.com/jphsd/texture/surface"
 	"image"
 	"image/draw"
@@ -22,7 +23,7 @@ func main() {
 	cnt := 0
 	for true {
 		res := image.NewRGBA(image.Rect(0, 0, width*3, height))
-		cf := texture.MakeComponent()
+		cf := random.MakeComponent()
 		// Color
 		img := texture.NewRGBA(width, height, cf.Color, 0, 0, 1, 1)
 		draw.Draw(res, image.Rect(0, 0, width, height), img, image.Point{}, draw.Src)

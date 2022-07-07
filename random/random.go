@@ -1,9 +1,10 @@
-package texture
+package random
 
 import (
 	//"fmt"
 	g2d "github.com/jphsd/graphics2d"
 	g2dcol "github.com/jphsd/graphics2d/color"
+	. "github.com/jphsd/texture"
 	"image"
 	"math"
 	"math/rand"

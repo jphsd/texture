@@ -33,7 +33,7 @@ func (s *Shape) Eval2(x, y float64) float64 {
 	case PathSumStyle:
 		return s.summed(x, y)
 	case PathOccStyle:
-		return s.occurence(x, y)
+		return s.occurrence(x, y)
 	}
 }
 
@@ -46,7 +46,7 @@ func (s *Shape) binary(x, y float64) float64 {
 }
 
 // -1 if outside of any paths, otherwise path index it first occurs in
-func (s *Shape) occurence(x, y float64) float64 {
+func (s *Shape) occurrence(x, y float64) float64 {
 	// Treat the order of paths in a shape as a stack
 	// and return a value depending on which path in the
 	// shape the point hits first.
