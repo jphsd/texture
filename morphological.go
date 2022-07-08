@@ -1,61 +1,45 @@
 package texture
 
-type MorpOp int
-
-const (
-	ErodeOp MorpOp = iota
-	DilateOp
-)
-
-type Morphological struct {
+type Erode struct {
 	Name string
 	Src  Field
 	Supp [][]float64
-	Oper MorpOp
 }
 
-func NewMorphological(src Field, supp [][]float64, op MorpOp) *Morphological {
-	return &Morphological{"Morphological", src, supp, op}
+func NewErode(src Field, supp [][]float64) *Erode {
+	return &Erode{"Erode", src, supp}
 }
 
-func (m *Morphological) Eval2(x, y float64) float64 {
-	support := make([]float64, len(m.Supp)+1)
-	support[0] = m.Src.Eval2(x, y)
-	for i, s := range m.Supp {
-		support[i+1] = m.Src.Eval2(x+s[0], y+s[1])
-	}
-	switch m.Oper {
-	default:
-		fallthrough
-	case ErodeOp:
-		return Erode(support)
-	case DilateOp:
-		return Dilate(support)
-	}
-}
-
-// Morphological helper functions
-
-// Erode - min
-func Erode(vals []float64) float64 {
-	m := 1.0
-	for _, v := range vals {
-		if m > v {
-			m = v
+func (m *Erode) Eval2(x, y float64) float64 {
+	min := m.Src.Eval2(x, y)
+	for _, s := range m.Supp {
+		v := m.Src.Eval2(x+s[0], y+s[1])
+		if v < min {
+			min = v
 		}
 	}
-	return m
+	return min
 }
 
-// Dilate - max
-func Dilate(vals []float64) float64 {
-	m := -1.0
-	for _, v := range vals {
-		if m < v {
-			m = v
+type Dilate struct {
+	Name string
+	Src  Field
+	Supp [][]float64
+}
+
+func NewDilate(src Field, supp [][]float64) *Dilate {
+	return &Dilate{"Dilate", src, supp}
+}
+
+func (m *Dilate) Eval2(x, y float64) float64 {
+	max := m.Src.Eval2(x, y)
+	for _, s := range m.Supp {
+		v := m.Src.Eval2(x+s[0], y+s[1])
+		if v > max {
+			max = v
 		}
 	}
-	return m
+	return max
 }
 
 // Higher level Morphological operations
@@ -68,7 +52,7 @@ type EdgeIn struct {
 }
 
 func NewEdgeIn(src Field, supp [][]float64) *EdgeIn {
-	f := NewMorphological(src, supp, ErodeOp)
+	f := NewErode(src, supp)
 	return &EdgeIn{"EdgeIn", src, f}
 }
 
@@ -84,7 +68,7 @@ type EdgeOut struct {
 }
 
 func NewEdgeOut(src Field, supp [][]float64) *EdgeOut {
-	f := NewMorphological(src, supp, DilateOp)
+	f := NewDilate(src, supp)
 	return &EdgeOut{"EdgeOut", f, src}
 }
 
@@ -100,8 +84,8 @@ type Edge struct {
 }
 
 func NewEdge(src Field, supp [][]float64) *Edge {
-	f1 := NewMorphological(src, supp, DilateOp)
-	f2 := NewMorphological(src, supp, ErodeOp)
+	f1 := NewDilate(src, supp)
+	f2 := NewErode(src, supp)
 	return &Edge{"Edge", f1, f2}
 }
 
@@ -116,8 +100,8 @@ type Close struct {
 }
 
 func NewClose(src Field, supp [][]float64) *Close {
-	f1 := NewMorphological(src, supp, DilateOp)
-	f2 := NewMorphological(f1, supp, ErodeOp)
+	f1 := NewDilate(src, supp)
+	f2 := NewErode(f1, supp)
 	return &Close{"Close", f2}
 }
 
@@ -132,8 +116,8 @@ type Open struct {
 }
 
 func NewOpen(src Field, supp [][]float64) *Open {
-	f1 := NewMorphological(src, supp, ErodeOp)
-	f2 := NewMorphological(f1, supp, DilateOp)
+	f1 := NewErode(src, supp)
+	f2 := NewDilate(f1, supp)
 	return &Open{"Open", f2}
 }
 
