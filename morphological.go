@@ -11,7 +11,7 @@ func NewErode(src Field, supp [][]float64) *Erode {
 }
 
 func (m *Erode) Eval2(x, y float64) float64 {
-	min := m.Src.Eval2(x, y)
+	min := 1.0
 	for _, s := range m.Supp {
 		v := m.Src.Eval2(x+s[0], y+s[1])
 		if v < min {
@@ -32,7 +32,7 @@ func NewDilate(src Field, supp [][]float64) *Dilate {
 }
 
 func (m *Dilate) Eval2(x, y float64) float64 {
-	max := m.Src.Eval2(x, y)
+	max := -1.0
 	for _, s := range m.Supp {
 		v := m.Src.Eval2(x+s[0], y+s[1])
 		if v > max {
@@ -155,4 +155,43 @@ func NewBottomHat(src Field, supp [][]float64) *BottomHat {
 
 func (m *BottomHat) Eval2(x, y float64) float64 {
 	return m.Src1.Eval2(x, y) - m.Src2.Eval2(x, y)
+}
+
+// Support helpers
+
+func Z4Support(sx, sy float64) [][]float64 {
+	// Z4 3x3 Von Neumann 4-way
+	return [][]float64{
+		{0, -sy},
+		{-sx, 0},
+		{0, 0},
+		{sx, 0},
+		{0, sy},
+	}
+}
+
+func X3Support(sx, sy float64) [][]float64 {
+	// X3 3x3 rotated Von Neumann 4-way
+	return [][]float64{
+		{sx, -sy},
+		{-sx, -sy},
+		{0, 0},
+		{sx, sy},
+		{-sx, sy},
+	}
+}
+
+func Z8Support(sx, sy float64) [][]float64 {
+	// Z8 3x3 Moore 8-way
+	return [][]float64{
+		{-sx, -sy},
+		{0, -sy},
+		{sx, -sy},
+		{-sx, 0},
+		{0, 0},
+		{sx, 0},
+		{-sx, sy},
+		{0, sy},
+		{sx, sy},
+	}
 }
