@@ -74,6 +74,7 @@ func GetNodes() []Node {
 			{"Magnitude", MakeMagnitude},
 			{"Fractal", MakeFractal},
 			{"VariableFractal", MakeVariableFractal},
+			{"Morphological", MakeMorphological},
 		}
 	}
 	return NodeOptions
