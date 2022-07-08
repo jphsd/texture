@@ -1,8 +1,8 @@
 package random
 
 import (
-	"math/rand"
 	"github.com/jphsd/texture"
+	"math/rand"
 )
 
 func MakeSupport() [][]float64 {
