@@ -42,7 +42,7 @@ func main() {
 	sx, sy := 2*float64(iw)/float64(width), 2*float64(ih)/float64(height)
 
 	// Make new field from img
-	f1 := texture.NewImage(img)
+	f1 := texture.NewImage(img, texture.LinearInterp)
 	f2 := texture.NewTilerCF(f1, []float64{float64(iw), float64(ih)})
 	xfm := g2d.NewAff3()
 	xfm.Scale(sx, sy)
