@@ -153,7 +153,7 @@ func MakeImage() texture.Field {
 	iw, ih := Sample.Bounds().Dx(), Sample.Bounds().Dy()
 
 	// Make new field from img
-	f1 := texture.NewImage(Sample)
+	f1 := texture.NewImage(Sample, texture.LinearInterp)
 	f2 := texture.NewColorToGray(f1)
 	f3 := texture.NewTiler(f2, []float64{float64(iw), float64(ih)})
 	xfm := g2d.NewAff3()
