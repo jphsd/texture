@@ -5,13 +5,13 @@ The following code creates a random tree up to six nodes deep and uses it to ren
 which is then saved as "example.png"
 
   package main
-  
+
   import (
   	"github.com/jphsd/graphics2d/image"
   	"github.com/jphsd/texture"
   	"github.com/jphsd/texture/random"
   )
-  
+
   func main() {
   	cf := random.MakeColorField(6, 0)
   	img := texture.NewRGBA(800, 800, cf, 0, 0, 1, 1)

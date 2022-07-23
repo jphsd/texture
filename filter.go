@@ -96,6 +96,25 @@ func (f *ClipFilter) Eval2(x, y float64) float64 {
 	return clamp(v)
 }
 
+// OffsScaleFilter limits A(t+B) to [-1,1].
+type OffsScaleFilter struct {
+	Name string
+	Src  Field
+	A, B float64
+}
+
+func NewOffsScaleFilter(src Field, a, b float64) *OffsScaleFilter {
+	return &OffsScaleFilter{"OffsScaleFilter", src, a, b}
+}
+
+// Eval2 implements the Field interface.
+func (f *OffsScaleFilter) Eval2(x, y float64) float64 {
+	v := f.Src.Eval2(x, y)
+	v += f.B
+	v *= f.A
+	return clamp(v)
+}
+
 // Abs returns Abs(At+B) (clamped).
 type AbsFilter struct {
 	Name string

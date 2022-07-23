@@ -32,12 +32,13 @@ func main() {
 	}
 	_ = f.Close()
 
-	cf1 := texture.NewImage(img)
+	cf1 := texture.NewImage(img, texture.LinearInterp)
 	f1 := texture.NewColorToGray(cf1)
+	f2 := texture.NewCache(f1, 1, 10000)
 
-	f2 := texture.NewEdge(f1, texture.Z4Support(1, 1))
+	f3 := texture.NewEdge(f2, texture.Z4Support(1, 1))
 
-	cf2 := texture.NewColorGray(f2)
+	cf2 := texture.NewColorGray(f3)
 	fimg := texture.NewRGBA(width, height, cf2, 0, 0, 1, 1)
 	g2dimg.SaveImage(fimg, "morph")
 }
