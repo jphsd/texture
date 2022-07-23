@@ -10,13 +10,14 @@ type Cache struct {
 	Src        Field
 	Resolution float64
 	Limit      int
+	oneovrres  float64
 	cache      map[string]float64
 }
 
 // NewCache creates a new Cache with the specified resolution and limit. Once the limit is reached, the cache
 // will be reset. The resoultion determines the accuracy of the x,y mapping to previous requests.
 func NewCache(src Field, resolution float64, limit int) *Cache {
-	return &Cache{"Cache", src, resolution, limit, make(map[string]float64)}
+	return &Cache{"Cache", src, resolution, limit, 1 / resolution, make(map[string]float64)}
 }
 
 // Eval2 implements the Field interface.
@@ -34,12 +35,12 @@ func (c *Cache) Eval2(x, y float64) float64 {
 }
 
 func (c *Cache) cacheInd(x, y float64) string {
-	x /= c.Resolution
+	x *= c.oneovrres
 	if x < 0 {
 		x -= 1
 	}
 	ix := int(x)
-	y /= c.Resolution
+	y *= c.oneovrres
 	if y < 0 {
 		y -= 1
 	}
