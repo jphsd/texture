@@ -6,19 +6,26 @@ import (
 )
 
 // Fractal holds the pieces necessary for fractal generation. Xfm defines the affine transformation
-// applied successively to the coordinate space and CFunc, how the multiple resultant values should be combined.
-// An optional filter can be specified which will be applied to the final result.
+// applied successively to the coordinate space and Comb, how the multiple resultant values should be combined.
+// Bands can also be manipulated through the weight values (typically [0, 1]) which allows certain frequencies
+// to be attenuated.
 type Fractal struct {
 	Name    string
 	Src     Field
 	Xfm     *g2d.Aff3
 	Comb    OctaveCombiner
 	Octaves float64
+	Weights []float64
 }
 
 // NewFractal returns a new Fractal instance.
 func NewFractal(src Field, xfm *g2d.Aff3, comb OctaveCombiner, octaves float64) *Fractal {
-	return &Fractal{"Fractal", src, xfm, comb, octaves}
+	oct := int(octaves)
+	w := make([]float64, oct)
+	for i := 0; i < oct; i++ {
+		w[i] = 1
+	}
+	return &Fractal{"Fractal", src, xfm, comb, octaves, w}
 }
 
 // Eval2 implements the Field interface.
@@ -28,7 +35,7 @@ func (f *Fractal) Eval2(x, y float64) float64 {
 	n++
 	nv := make([]float64, n)
 	for i := 0; i < n; i++ {
-		nv[i] = f.Src.Eval2(x, y)
+		nv[i] = f.Src.Eval2(x, y) * f.Weights[i]
 		pt := f.Xfm.Apply([]float64{x, y})
 		x, y = pt[0][0], pt[0][1]
 	}
@@ -38,17 +45,23 @@ func (f *Fractal) Eval2(x, y float64) float64 {
 }
 
 type VariableFractal struct {
-	Name   string
-	Src    Field
-	Xfm    *g2d.Aff3
-	Comb   OctaveCombiner
-	OctSrc Field
-	Scale  float64
+	Name    string
+	Src     Field
+	Xfm     *g2d.Aff3
+	Comb    OctaveCombiner
+	OctSrc  Field
+	Scale   float64
+	Weights []float64
 }
 
 // NewFractal returns a new Fractal instance.
 func NewVariableFractal(src Field, xfm *g2d.Aff3, comb OctaveCombiner, octsrc Field, scale float64) *VariableFractal {
-	return &VariableFractal{"VariableFractal", src, xfm, comb, octsrc, scale / 2}
+	n := int(scale)
+	w := make([]float64, n)
+	for i := 0; i < n; i++ {
+		w[i] = 1
+	}
+	return &VariableFractal{"VariableFractal", src, xfm, comb, octsrc, scale / 2, w}
 }
 
 // Eval2 implements the Field interface.
