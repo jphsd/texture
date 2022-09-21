@@ -15,7 +15,7 @@ type Cache struct {
 }
 
 // NewCache creates a new Cache with the specified resolution and limit. Once the limit is reached, the cache
-// will be reset. The resoultion determines the accuracy of the x,y mapping to previous requests.
+// will be reset. The resolution determines the accuracy of the x,y mapping to previous requests.
 func NewCache(src Field, resolution float64, limit int) *Cache {
 	return &Cache{"Cache", src, resolution, limit, 1 / resolution, make(map[string]float64)}
 }

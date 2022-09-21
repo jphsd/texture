@@ -1,7 +1,7 @@
 package texture
 
 type Convolution struct {
-	Nmae string
+	Name string
 	Src  Field
 	Kern [][]float64
 }
