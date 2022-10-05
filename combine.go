@@ -142,11 +142,11 @@ func NewWindowedCombiner(src1, src2 Field, a, b float64) *WindowedCombiner {
 
 // Eval2 implements the Field interface.
 func (c *WindowedCombiner) Eval2(x, y float64) float64 {
-	v1, v2 := c.Src1.Eval2(x, y), c.Src2.Eval2(x, y)
+	v1 := c.Src1.Eval2(x, y)
 	if v1 < c.A || v1 > c.B {
 		return v1
 	}
-	return v2
+	return c.Src2.Eval2(x, y)
 }
 
 // WeightedfCombiner combines two fields based on the supplied values.
@@ -158,7 +158,7 @@ type WeightedCombiner struct {
 }
 
 func NewWeightedCombiner(src1, src2 Field, a, b float64) *WeightedCombiner {
-	return &WeightedCombiner{"WindowedCombiner", src1, src2, a, b}
+	return &WeightedCombiner{"WeightedCombiner", src1, src2, a, b}
 }
 
 // Eval2 implements the Field interface.
@@ -247,9 +247,9 @@ func NewSubstituteCombiner(src1, src2, src3 Field, a, b float64) *SubstituteComb
 
 // Eval2 implements the Field interface.
 func (c *SubstituteCombiner) Eval2(x, y float64) float64 {
-	v1, v2, v3 := c.Src1.Eval2(x, y), c.Src2.Eval2(x, y), c.Src3.Eval2(x, y)
+	v1, v3 := c.Src1.Eval2(x, y), c.Src3.Eval2(x, y)
 	if v3 < c.A || v3 > c.B {
 		return v1
 	}
-	return v2
+	return c.Src2.Eval2(x, y)
 }
