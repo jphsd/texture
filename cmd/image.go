@@ -4,38 +4,22 @@ package main
 
 import (
 	"flag"
-	"image"
+	g2d "github.com/jphsd/graphics2d"
+	"github.com/jphsd/graphics2d/image"
+	"github.com/jphsd/texture"
 	"math"
 	"math/rand"
-	"os"
-	"time"
-
-	g2d "github.com/jphsd/graphics2d"
-	gi "github.com/jphsd/graphics2d/image"
-	"github.com/jphsd/texture"
-
-	_ "golang.org/x/image/bmp"
-	_ "golang.org/x/image/tiff"
-	_ "golang.org/x/image/webp"
-	_ "image/jpeg"
-	_ "image/png"
 )
 
 func main() {
 	// Read in image file indicated in command line
 	flag.Parse()
 	args := flag.Args()
-	f, err := os.Open(args[0])
-	if err != nil {
-		panic(err)
-	}
-	img, _, err := image.Decode(f)
-	if err != nil {
-		panic(err)
-	}
-	_ = f.Close()
 
-	rand.Seed(int64(time.Now().Nanosecond()))
+	img, err := image.ReadImage(args[0])
+	if err != nil {
+		panic(err)
+	}
 
 	width, height := 800, 800
 	iw, ih := img.Bounds().Dx(), img.Bounds().Dy()
@@ -50,6 +34,6 @@ func main() {
 	f3 := texture.NewTransformCF(f2, xfm)
 
 	out := texture.NewRGBA(width, height, f3, 0, 0, 1, 1)
-	gi.SaveImage(out, "image")
+	image.SaveImage(out, "image")
 	texture.SaveJSON(f3, "image")
 }

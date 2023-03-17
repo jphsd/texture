@@ -205,20 +205,3 @@ func P5(t float64, p []float64) float64 {
 	t = t * t * t * (t*(t*6-15) + 10)
 	return Linear(t, p)
 }
-
-// NewRGBA renders the texture into a new RGBA image.
-func NewRGBA(width, height int, src ColorField, ox, oy, dx, dy float64) *image.RGBA {
-	img := image.NewRGBA(image.Rect(0, 0, width, height))
-	y := oy
-	for r := 0; r < height; r++ {
-		x := ox
-		for c := 0; c < width; c++ {
-			v := src.Eval2(x, y)
-			img.Set(c, r, v)
-			x += dx
-		}
-		y += dy
-	}
-
-	return img
-}

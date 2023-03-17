@@ -1,10 +1,10 @@
 module github.com/jphsd/texture
 
-go 1.18
+go 1.20
 
 require (
-	github.com/jphsd/datastruct v0.0.0-20221005032637-f86fadacd0c8
-	github.com/jphsd/graphics2d v0.0.0-20220921033044-b9089ab64866
+	github.com/jphsd/datastruct v0.0.0-20230317022422-9fcc25efdfd4
+	github.com/jphsd/graphics2d v0.0.0-20230316035628-f8b5c8812fb4
 )
 
 require (
