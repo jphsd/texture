@@ -25,13 +25,13 @@ func NewRGBA(width, height int, src ColorField, ox, oy, dx, dy float64) *image.R
 	return img
 }
 
-// Texture is a lazily evaluated RGBA image. For expensive textures this allows only the pixels needed
-// to be calculated.
+// Texture is a lazily evaluated RGBA image. For expensive textures this allows only the requested pixels
+// to be calculated, and not the entire image.
 type Texture struct {
 	Src    ColorField
 	Bits   datastruct.Bits // True if pixel has already been evaluated
 	Rect   image.Rectangle
-	Img    *image.RGBA // Evaulated pixels
+	Img    *image.RGBA // Evaluated pixels
 	Stride int
 	Ox, Oy float64
 	Dx, Dy float64
