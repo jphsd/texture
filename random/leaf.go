@@ -125,7 +125,7 @@ func MakeBinary() texture.Field {
 	xfm := g2d.NewAff3()
 	xfm.Scale(0.01, 0.01)
 	xfm.Rotate(rand.Float64() * math.Pi * 2)
-	f := texture.NewBinary(16, 16, rand.Int63())
+	f := texture.NewBinary(16, 16, rand.Int63(), rand.Float64())
 	return texture.NewTransform(f, xfm)
 }
 
