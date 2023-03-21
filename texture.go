@@ -29,12 +29,12 @@ func NewRGBA(width, height int, src ColorField, ox, oy, dx, dy float64) *image.R
 // to be calculated, and not the entire image.
 type Texture struct {
 	Src    ColorField
-	Bits   datastruct.Bits // True if pixel has already been evaluated
 	Rect   image.Rectangle
 	Img    *image.RGBA // Evaluated pixels
 	Stride int
 	Ox, Oy float64
 	Dx, Dy float64
+	bits   datastruct.Bits // True if pixel has already been evaluated
 }
 
 // NewTexture creates a new Texture from the supplied parameters
@@ -42,7 +42,7 @@ func NewTexture(width, height int, src ColorField, ox, oy, dx, dy float64) *Text
 	bits := datastruct.NewBits(width * height)
 	rect := image.Rectangle{image.Point{}, image.Point{width, height}}
 	img := image.NewRGBA(rect)
-	return &Texture{src, bits, rect, img, width, ox, oy, dx, dy}
+	return &Texture{src, rect, img, width, ox, oy, dx, dy, bits}
 }
 
 // ColorModel implements the ColorModel function in the Image interface.
@@ -62,13 +62,13 @@ func (t *Texture) At(x, y int) color.Color {
 	}
 	// Convert x, y to bit index
 	i := x + y*t.Stride
-	if t.Bits.Get(i) {
+	if t.bits.Get(i) {
 		return t.Img.RGBAAt(x, y)
 	}
 	// Pixel not set - evaluate it
 	col := t.Src.Eval2(t.Ox+float64(x)*t.Dx, t.Oy+float64(y)*t.Dy)
 	t.Img.Set(x, y, col)
-	t.Bits.Set(i)
+	t.bits.Set(i)
 
 	return col
 }
