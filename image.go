@@ -68,10 +68,10 @@ func (f *Image) Eval2(x, y float64) color.Color {
 }
 
 // Get 4x4 patch
-func (f *Image) getValues(x, y int) [][]*tcol.FRGBA {
-	res := make([][]*tcol.FRGBA, 4)
+func (f *Image) getValues(x, y int) [][]tcol.FRGBA {
+	res := make([][]tcol.FRGBA, 4)
 	for r, i := y-1, 0; r < y+3; r++ {
-		res[i] = make([]*tcol.FRGBA, 4)
+		res[i] = make([]tcol.FRGBA, 4)
 		for c, j := x-1, 0; c < x+3; c++ {
 			res[i][j] = f.getValue(c, r)
 			j++
@@ -82,7 +82,7 @@ func (f *Image) getValues(x, y int) [][]*tcol.FRGBA {
 }
 
 // Get converted values as FRGBA, and handle edges
-func (f *Image) getValue(x, y int) *tcol.FRGBA {
+func (f *Image) getValue(x, y int) tcol.FRGBA {
 	var col color.Color
 	if x < f.MinX {
 		if y < f.MinY {
@@ -108,12 +108,12 @@ func (f *Image) getValue(x, y int) *tcol.FRGBA {
 		col = f.image.At(x, y)
 	}
 
-	fc, _ := tcol.FRGBAModel.Convert(col).(*tcol.FRGBA)
+	fc, _ := tcol.FRGBAModel.Convert(col).(tcol.FRGBA)
 	return fc
 }
 
 // biPatch uses interp to calculate the value of f(u,v) for u,v in range [0,1).
-func (f *Image) biPatch(u, v float64, p [][]*tcol.FRGBA) *tcol.FRGBA {
+func (f *Image) biPatch(u, v float64, p [][]tcol.FRGBA) tcol.FRGBA {
 	row := make([]float64, 4)
 	col := make([]float64, 4)
 
@@ -153,7 +153,7 @@ func (f *Image) biPatch(u, v float64, p [][]*tcol.FRGBA) *tcol.FRGBA {
 	}
 	a := bcclamp(f.interp(u, row))
 
-	return &tcol.FRGBA{r, g, b, a}
+	return tcol.FRGBA{r, g, b, a}
 }
 
 func bcclamp(v float64) float64 {

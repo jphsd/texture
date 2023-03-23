@@ -20,7 +20,7 @@ func NewColorGray(src Field) *ColorGray {
 // Eval2 implements the ColorField interface.
 func (c *ColorGray) Eval2(x, y float64) color.Color {
 	t := (c.Src.Eval2(x, y) + 1) / 2
-	return &color.Gray16{uint16(t * 0xffff)}
+	return color.Gray16{uint16(t * 0xffff)}
 }
 
 // ColorSinCos contains the field used in the color evaluation. The color produced depends
@@ -55,9 +55,9 @@ func (c *ColorSinCos) Eval2(x, y float64) color.Color {
 		v1, v2, v3 = 0.5, (1+math.Cos(t))/2, (1+math.Sin(t))/2
 	}
 	if c.HSL {
-		return &g2dcol.HSL{v1, v2, v3, 1}
+		return g2dcol.HSL{v1, v2, v3, 1}
 	}
-	return &tcol.FRGBA{v1, v2, v3, 1}
+	return tcol.FRGBA{v1, v2, v3, 1}
 }
 
 // ColorConv combines the field with a color interpolator.
@@ -140,9 +140,9 @@ func (c *ColorFields) Eval2(x, y float64) color.Color {
 	}
 	v1, v2, v3 := (c.Src1.Eval2(x, y)+1)/2, (c.Src2.Eval2(x, y)+1)/2, (c.Src3.Eval2(x, y)+1)/2
 	if c.HSL {
-		return &g2dcol.HSL{v1, v2, v3, a}
+		return g2dcol.HSL{v1, v2, v3, a}
 	}
-	return &color.NRGBA{uint8(v1 * 0xff), uint8(v2 * 0xff), uint8(v3 * 0xff), uint8(a * 0xff)}
+	return color.NRGBA{uint8(v1 * 0xff), uint8(v2 * 0xff), uint8(v3 * 0xff), uint8(a * 0xff)}
 }
 
 // ColorVector uses the three values from a vector field to populate either R, G, B or H, S, L.
@@ -163,9 +163,9 @@ func (c *ColorVector) Eval2(x, y float64) color.Color {
 	v1, v2, v3 := (v[0]+1)/2, (v[1]+1)/2, (v[2]+1)/2
 	a := 1.0
 	if c.HSL {
-		return &g2dcol.HSL{v1, v2, v3, a}
+		return g2dcol.HSL{v1, v2, v3, a}
 	}
-	return &color.NRGBA{uint8(v1 * 0xff), uint8(v2 * 0xff), uint8(v3 * 0xff), uint8(a * 0xff)}
+	return color.NRGBA{uint8(v1 * 0xff), uint8(v2 * 0xff), uint8(v3 * 0xff), uint8(a * 0xff)}
 }
 
 // LerpType defines the type of lerp -
@@ -232,14 +232,14 @@ func (c *ColorSubstitute) Eval2(x, y float64) color.Color {
 // Color lerps; t [0,1] => color.Color
 
 // ColorRGBABiLerp calculates the color value at u, v [0,1] given colors at [0,0], [1,0], [0,1], [1,1] in RGB space.
-func ColorRGBABiLerp(u, v float64, colors []color.Color) color.Color {
+func ColorRGBABiLerp(u, v float64, colors []color.Color) color.RGBA {
 	c1 := ColorRGBALerp(v, colors[0], colors[2])
 	c2 := ColorRGBALerp(v, colors[1], colors[3])
 	return ColorRGBALerp(u, c1, c2)
 }
 
 // ColorRGBALerp calculates the color value at t [0,1] given a start and end color in RGB space.
-func ColorRGBALerp(t float64, start, end color.Color) color.Color {
+func ColorRGBALerp(t float64, start, end color.Color) color.RGBA {
 	rs, gs, bs, as := start.RGBA() // uint32 [0,0xffff]
 	re, ge, be, ae := end.RGBA()
 	rt := uint32(math.Floor((1-t)*float64(rs) + t*float64(re) + 0.5))
@@ -250,7 +250,7 @@ func ColorRGBALerp(t float64, start, end color.Color) color.Color {
 	gt >>= 8
 	bt >>= 8
 	at >>= 8
-	return &color.RGBA{uint8(rt), uint8(gt), uint8(bt), uint8(at)}
+	return color.RGBA{uint8(rt), uint8(gt), uint8(bt), uint8(at)}
 }
 
 // ColorHSLLerp calculates the color value at t [0,1] given a start and end color in HSL space.
@@ -260,7 +260,7 @@ func ColorHSLLerp(t float64, start, end color.Color) color.Color {
 	st := (1-t)*cs.S + t*ce.S
 	lt := (1-t)*cs.L + t*ce.L
 	at := (1-t)*cs.A + t*ce.A
-	return &g2dcol.HSL{ht, st, lt, at}
+	return g2dcol.HSL{ht, st, lt, at}
 }
 
 // ColorHSLLerpS calculates the color value at t [0,1] given a start and end color in HSL space.
@@ -282,5 +282,5 @@ func ColorHSLLerpS(t float64, start, end color.Color) color.Color {
 	st := (1-t)*cs.S + t*ce.S
 	lt := (1-t)*cs.L + t*ce.L
 	at := (1-t)*cs.A + t*ce.A
-	return &g2dcol.HSL{ht, st, lt, at}
+	return g2dcol.HSL{ht, st, lt, at}
 }
