@@ -9,6 +9,7 @@ type BlockNoise struct {
 	Cols   int
 	Seed   int64
 	Samps  int
+	UseMax bool
 	CellW  float64
 	CellH  float64
 	CLen   int
@@ -20,7 +21,7 @@ func NewBlockNoise(w, h float64, r, c int, d float64) *BlockNoise {
 	seed := rand.Int63()
 	cw, ch := w/float64(c), h/float64(r)
 	samps := 4 * int(ch*d)
-	return &BlockNoise{"BlockNoise", dom, r, c, seed, samps, cw, ch, 3 * c, make(map[int][][]float64)}
+	return &BlockNoise{"BlockNoise", dom, r, c, seed, samps, false, cw, ch, 3 * c, make(map[int][][]float64)}
 }
 
 // Eval2 implements the Field interface.
@@ -36,17 +37,16 @@ func (bn *BlockNoise) Eval2(x, y float64) float64 {
 	lh := 1.0
 
 	// Run through #samps to see if we get a hit
+	var v float64
 	hit := false
 	bb := bn.cbCache(r, c, bn.Samps, lw, lh)
-	for i := 0; i < bn.Samps; i++ {
-		if x < bb[i][0] || x > bb[i][2] || y < bb[i][1] || y > bb[i][3] {
-			continue
-		}
-		hit = true
-		break
+	if bn.UseMax {
+		hit, v = testBBH(x, y, bb)
+	} else {
+		hit, v = testBB(x, y, bb)
 	}
 	if hit {
-		return 1
+		return v
 	}
 
 	// Need to check the preceeding cell (to the left)
@@ -58,15 +58,13 @@ func (bn *BlockNoise) Eval2(x, y float64) float64 {
 
 	// Run through #samps to see if we get a hit
 	bb = bn.cbCache(r, c, bn.Samps, lw, lh)
-	for i := 0; i < bn.Samps; i++ {
-		if x < bb[i][0] || x > bb[i][2] || y < bb[i][1] || y > bb[i][3] {
-			continue
-		}
-		hit = true
-		break
+	if bn.UseMax {
+		hit, v = testBBH(x, y, bb)
+	} else {
+		hit, v = testBB(x, y, bb)
 	}
 	if hit {
-		return 1
+		return v
 	}
 
 	// Need to check the cell above
@@ -83,18 +81,44 @@ func (bn *BlockNoise) Eval2(x, y float64) float64 {
 
 	// Run through #samps to see if we get a hit
 	bb = bn.cbCache(r, c, bn.Samps, lw, lh)
-	for i := 0; i < bn.Samps; i++ {
-		if x < bb[i][0] || x > bb[i][2] || y < bb[i][1] || y > bb[i][3] {
+	if bn.UseMax {
+		_, v = testBBH(x, y, bb)
+	} else {
+		_, v = testBB(x, y, bb)
+	}
+
+	return v
+}
+
+// first hit wins
+func testBB(x, y float64, bbs [][]float64) (bool, float64) {
+	v := -1.0
+	hit := false
+	for _, bb := range bbs {
+		if x < bb[0] || x > bb[2] || y < bb[1] || y > bb[3] {
 			continue
 		}
 		hit = true
+		v = bb[4]
 		break
 	}
-	if hit {
-		return 1
-	}
+	return hit, v
+}
 
-	return -1.0
+// largest v wins
+func testBBH(x, y float64, bbs [][]float64) (bool, float64) {
+	v := -1.0
+	hit := false
+	for _, bb := range bbs {
+		if x < bb[0] || x > bb[2] || y < bb[1] || y > bb[3] {
+			continue
+		}
+		hit = true
+		if v < bb[4] {
+			v = bb[4]
+		}
+	}
+	return hit, v
 }
 
 func (bn *BlockNoise) cbCache(r, c, samps int, w, h float64) [][]float64 {
@@ -117,7 +141,8 @@ func (bn *BlockNoise) cellBlocks(r, c, samps int, w, h float64) [][]float64 {
 	for i := 0; i < samps; i++ {
 		ox, oy := lr.Float64()*bn.CellW, lr.Float64()*bn.CellH
 		dx, dy := lr.Float64()*w, lr.Float64()*h
-		res[i] = []float64{ox, oy, ox + dx, oy + dy}
+		v := lr.Float64()*2 - 1
+		res[i] = []float64{ox, oy, ox + dx, oy + dy, v}
 	}
 	return res
 }
