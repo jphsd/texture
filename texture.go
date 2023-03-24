@@ -67,10 +67,14 @@ func (t *TextureRGBA) At(x, y int) color.Color {
 	}
 	// Pixel not set - evaluate it
 	col := t.Src.Eval2(t.Ox+float64(x)*t.Dx, t.Oy+float64(y)*t.Dy)
-	t.Img.Set(x, y, col)
+	rgba, ok := col.(color.RGBA)
+	if !ok {
+		rgba = color.RGBAModel.Convert(col).(color.RGBA)
+	}
+	t.Img.Set(x, y, rgba)
 	t.bits.Set(i)
 
-	return col
+	return rgba
 }
 
 // TextureGray16 is a lazily evaluated Gray16 image. For expensive textures this allows only the requested pixels
@@ -115,8 +119,12 @@ func (t *TextureGray16) At(x, y int) color.Color {
 	}
 	// Pixel not set - evaluate it
 	col := t.Src.Eval2(t.Ox+float64(x)*t.Dx, t.Oy+float64(y)*t.Dy)
-	t.Img.Set(x, y, col)
+	g16, ok := col.(color.Gray16)
+	if !ok {
+		g16 = color.Gray16Model.Convert(col).(color.Gray16)
+	}
+	t.Img.Set(x, y, g16)
 	t.bits.Set(i)
 
-	return col
+	return g16
 }
