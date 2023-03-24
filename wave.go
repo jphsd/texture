@@ -71,7 +71,7 @@ func (g *NLWave) Eval(v float64) float64 {
 	ov := v
 	r, v := MapValueToLambda(v, sum)
 
-	if g.Once && r > 0 {
+	if g.Once && ((!g.Mirrored && r > 0) || (g.Mirrored && r > 1)) {
 		return -1
 	}
 
@@ -100,7 +100,7 @@ func (g *NLWave) Eval(v float64) float64 {
 		}
 	}
 
-	return g.NLFs[i].NLF.Transform(t)
+	return g.NLFs[i].Eval(t)
 }
 
 func (g *NLWave) Lambda() float64 {
@@ -180,7 +180,7 @@ func (g *PatternWave) Eval(v float64) float64 {
 	ov := v
 	r, v := MapValueToLambda(v, sum)
 
-	if g.Once && r != 0 {
+	if g.Once && ((!g.Mirrored && r > 0) || (g.Mirrored && r > 1)) {
 		return -1
 	}
 
