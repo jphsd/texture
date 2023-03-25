@@ -25,6 +25,23 @@ func NewRGBA(width, height int, src ColorField, ox, oy, dx, dy float64) *image.R
 	return img
 }
 
+// NewGray16 renders the src ColorField into a new Gray16 image.
+func NewGray16(width, height int, src ColorField, ox, oy, dx, dy float64) *image.Gray16 {
+	img := image.NewGray16(image.Rect(0, 0, width, height))
+	y := oy
+	for r := 0; r < height; r++ {
+		x := ox
+		for c := 0; c < width; c++ {
+			v := src.Eval2(x, y)
+			img.Set(c, r, v)
+			x += dx
+		}
+		y += dy
+	}
+
+	return img
+}
+
 // TextureRGBA is a lazily evaluated RGBA image. For expensive textures this allows only the requested pixels
 // to be calculated, and not the entire image.
 type TextureRGBA struct {
