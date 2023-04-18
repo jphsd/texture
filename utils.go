@@ -12,7 +12,7 @@ import (
 func NewLinearGray16(w, h int, p1, p2 []float64, wf *NonLinear, mirror, once bool) *TextureGray16 {
 	dx, dy := p2[0]-p1[0], p2[1]-p1[1]
 	th := math.Atan2(dy, dx)
-	lambda := math.Sqrt(dx*dx + dy*dy)
+	lambda := math.Hypot(dx, dy)
 
 	if wf == nil {
 		wf = NewNLLinear()
@@ -54,16 +54,16 @@ func NewConicGray16(w, h int, c []float64, th float64, wf *NonLinear) *TextureGr
 	return NewTextureGray16(w, h, cf, 0, 0, 1, 1)
 }
 
-// Tinting wrappers around the grayscale gradients
+// Colorizer wrappers around the grayscale gradients
 
-func NewLinearRGBA(w, h int, p1, p2 []float64, c1, c2 color.Color, wf *NonLinear, mirror, once bool) *image.Tinter {
-	return image.NewTinter(NewLinearGray16(w, h, p1, p2, wf, mirror, once), c1, c2)
+func NewLinearRGBA(w, h int, p1, p2 []float64, c1, c2 color.Color, wf *NonLinear, mirror, once bool) *image.Colorizer {
+	return image.NewColorizer(NewLinearGray16(w, h, p1, p2, wf, mirror, once), c1, c2, nil, nil, false)
 }
 
-func NewRadialRGBA(w, h int, c []float64, r float64, c1, c2 color.Color, wf *NonLinear, mirror, once bool) *image.Tinter {
-	return image.NewTinter(NewRadialGray16(w, h, c, r, wf, mirror, once), c1, c2)
+func NewRadialRGBA(w, h int, c []float64, r float64, c1, c2 color.Color, wf *NonLinear, mirror, once bool) *image.Colorizer {
+	return image.NewColorizer(NewRadialGray16(w, h, c, r, wf, mirror, once), c1, c2, nil, nil, false)
 }
 
-func NewConicRGBA(w, h int, c []float64, th float64, c1, c2 color.Color, wf *NonLinear) *image.Tinter {
-	return image.NewTinter(NewConicGray16(w, h, c, th, wf), c1, c2)
+func NewConicRGBA(w, h int, c []float64, th float64, c1, c2 color.Color, wf *NonLinear) *image.Colorizer {
+	return image.NewColorizer(NewConicGray16(w, h, c, th, wf), c1, c2, nil, nil, false)
 }

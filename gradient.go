@@ -25,7 +25,7 @@ func NewRadialGradient(wf Wave) *RadialGradient {
 }
 
 func (g *RadialGradient) Eval2(x, y float64) float64 {
-	v := math.Sqrt(x*x + y*y)
+	v := math.Hypot(x, y)
 	return g.WF.Eval(v)
 }
 

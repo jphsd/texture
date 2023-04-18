@@ -12,7 +12,7 @@ type Displace struct {
 	Indep           bool
 }
 
-// NewDisplace creates a new Dispalce instance using the same source for both x and y displacements.
+// NewDisplace creates a new Displace instance using the same transform for both x and y displacements.
 func NewDisplace(in, dx, dy Field, scale float64) *Displace {
 	xfm := graphics2d.NewAff3()
 	xfm.Scale(scale, scale)
