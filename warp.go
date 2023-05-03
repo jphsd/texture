@@ -5,6 +5,10 @@ import (
 	"math"
 )
 
+const (
+	twoPi = math.Pi * 2
+)
+
 type WarpFunc interface {
 	Eval(x, y float64) (float64, float64)
 }
@@ -72,11 +76,127 @@ func NewRadialWF(c []float64, rs, cs float64) *RadialWF {
 	return &RadialWF{"RadialWF", c, rs, cs}
 }
 
-// Eval converts from Euclidean to radial coords.
-func (rw *RadialWF) Eval(x, y float64) (float64, float64) {
-	lx, ly := x-rw.Center[0], y-rw.Center[1]
-	rr := math.Hypot(lx, ly) * rw.RScale
-	rx := rr*math.Atan2(ly, lx)*rw.CScale + rw.Center[0]
-	ry := rr + rw.Center[1]
+// Eval implements the WarpFunc interface
+func (wf *RadialWF) Eval(x, y float64) (float64, float64) {
+	lx, ly := x-wf.Center[0], y-wf.Center[1]
+	rr := math.Hypot(lx, ly) * wf.RScale
+	rx := rr*math.Atan2(ly, lx)*wf.CScale + wf.Center[0]
+	ry := rr + wf.Center[1]
 	return rx, ry
+}
+
+// SwirlWF performs a swirl warp around Center in x for use in the above warp types.
+// The cordinates are converted to polar (r, th) and th advanced by scale * r.
+type SwirlWF struct {
+	Name   string
+	Center []float64 // Center of warp
+	Scale  float64   // Scale factor
+}
+
+func NewSwirlWF(c []float64, s float64) *SwirlWF {
+	return &SwirlWF{"SwirlWF", c, s / twoPi}
+}
+
+// Eval implements the WarpFunc interface
+func (wf *SwirlWF) Eval(x, y float64) (float64, float64) {
+	dx, dy := x-wf.Center[0], y-wf.Center[1]
+	r, th := toPolar(dx, dy)
+	th += r * wf.Scale
+	dx, dy = toEuclidean(r, th)
+	return wf.Center[0] + dx, wf.Center[1] + dy
+}
+
+// DrainWF performs a drain warp around Center in x for use in the above warp types.
+// The x value is scaled about the central x value by |dy|^alpha*scale
+type DrainWF struct {
+	Name   string
+	Center []float64 // Center of warp
+	Scale  float64   // Scale factor
+	Effct  float64   // Effect radius
+}
+
+func NewDrainWF(c []float64, s, e float64) *DrainWF {
+	return &DrainWF{"DrainWF", c, s, e}
+}
+
+// Eval implements the WarpFunc interface
+func (wf *DrainWF) Eval(x, y float64) (float64, float64) {
+	dx, dy := x-wf.Center[0], y-wf.Center[1]
+	r, th := toPolar(dx, dy)
+	if r > wf.Effct {
+		return x, y
+	}
+	th += (1 - r/wf.Effct) * wf.Scale
+	dx, dy = toEuclidean(r, th)
+	return wf.Center[0] + dx, wf.Center[1] + dy
+}
+
+// RadialNLWF performs a radius warp around Center based on an NL
+type RadialNLWF struct {
+	Name   string
+	Center []float64  // Center of warp
+	NL     *NonLinear // [0,1] => [0,1]
+	Effct  float64    // Effect radius
+}
+
+func NewRadialNLWF(c []float64, nl *NonLinear, e float64) *RadialNLWF {
+	return &RadialNLWF{"RadialNLWF", c, nl, e}
+}
+
+// Eval implements the WarpFunc interface
+func (wf *RadialNLWF) Eval(x, y float64) (float64, float64) {
+	dx, dy := x-wf.Center[0], y-wf.Center[1]
+	r, th := toPolar(dx, dy)
+	if r > wf.Effct {
+		return x, y
+	}
+	t := r / wf.Effct
+	tp := (wf.NL.Eval(t) + 1) / 2 // NL returns results in [-1,1]
+	r = tp * wf.Effct
+	dx, dy = toEuclidean(r, th)
+	return wf.Center[0] + dx, wf.Center[1] + dy
+}
+
+// PinchXWF performs a pinched warp around Center in x for use in the above warp types.
+// The x value is scaled about the central x value by |dy|^alpha*scale
+type PinchXWF struct {
+	Name   string
+	Center []float64 // Center of warp
+	Init   float64   // Initial scale
+	Scale  float64   // Scale factor
+	Alpha  float64   // Power factor
+}
+
+func NewPinchXWF(c []float64, i, s, a float64) *PinchXWF {
+	return &PinchXWF{"PinchXWF", c, i, s, a}
+}
+
+// Eval implements the WarpFunc interface
+func (wf *PinchXWF) Eval(x, y float64) (float64, float64) {
+	dx, dy := x-wf.Center[0], y-wf.Center[1]
+	dy *= wf.Scale
+	if dy < 0 {
+		dy = -dy
+	}
+	if !within(wf.Alpha, 1, 0.00001) {
+		dy = math.Pow(dy, wf.Alpha)
+	}
+	dx *= 1 / (dy + wf.Init)
+	return wf.Center[0] + dx, y
+}
+
+func toPolar(dx, dy float64) (float64, float64) {
+	return math.Hypot(dx, dy), math.Atan2(dy, dx)
+}
+
+func toEuclidean(r, th float64) (float64, float64) {
+	return r * math.Cos(th), r * math.Sin(th)
+}
+
+func within(a, b, eps float64) bool {
+	d := a - b
+	if d < 0 {
+		d = -d
+	}
+	return d < eps
 }

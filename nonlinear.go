@@ -10,7 +10,7 @@ type NonLinear struct {
 }
 
 func (nl *NonLinear) Eval(t float64) float64 {
-	// util.NonLinear is in range [0,1], mpa to [-1,1]
+	// util.NonLinear is in range [0,1], map to [-1,1]
 	return nl.NLF.Transform(t)*2 - 1
 }
 

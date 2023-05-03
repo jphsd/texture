@@ -95,7 +95,14 @@ func (g *NLWave) Eval(v float64) float64 {
 	}
 
 	// Calculate t
-	t := v1 / g.Lambdas[i]
+	var t float64
+	if i > nl-1 {
+		// Rolled off end due to rounding errors
+		t = 1
+		i--
+	} else {
+		t = v1 / g.Lambdas[i]
+	}
 
 	// If mirrored, find direction
 	if g.Mirrored {
