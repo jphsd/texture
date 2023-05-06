@@ -185,6 +185,75 @@ func (wf *PinchXWF) Eval(x, y float64) (float64, float64) {
 	return wf.Center[0] + dx, y
 }
 
+// RippleXWF performs a sin warp using the y value, lambda and offset and applies it to the x value, scaled
+// by the amplitude.
+type RippleXWF struct {
+	Name   string
+	Lambda float64
+	Amplit float64
+	Offset float64
+}
+
+func NewRippleXWF(l, a, o float64) *RippleXWF {
+	return &RippleXWF{"RippleXWF", l, a, o}
+}
+
+// Eval implements the WarpFunc interface
+func (wf *RippleXWF) Eval(x, y float64) (float64, float64) {
+	_, l := MapValueToLambda(y+wf.Offset, wf.Lambda)
+	l = l / wf.Lambda * 2 * math.Pi
+	dx := math.Sin(l) * wf.Amplit
+	return x + dx, y
+}
+
+// RadialRippleWF performs a sin warp using the r value, lambda and offset and applies it to the r value, scaled
+// by the amplitude.
+type RadialRippleWF struct {
+	Name   string
+	Center []float64
+	Lambda float64
+	Amplit float64
+	Offset float64
+}
+
+func NewRadialRippleWF(c []float64, l, a, o float64) *RadialRippleWF {
+	return &RadialRippleWF{"RadialRippleWF", c, l, a, o}
+}
+
+// Eval implements the WarpFunc interface
+func (wf *RadialRippleWF) Eval(x, y float64) (float64, float64) {
+	dx, dy := x-wf.Center[0], y-wf.Center[1]
+	r, th := toPolar(dx, dy)
+	_, l := MapValueToLambda(r+wf.Offset, wf.Lambda)
+	l = l / wf.Lambda * 2 * math.Pi
+	dr := math.Sin(l) * wf.Amplit
+	return toEuclidean(r+dr, th)
+}
+
+// RadialWiggleWF performs a sin warp using the r value, lambda and offset and applies it to the th value, scaled
+// by the amplitude.
+type RadialWiggleWF struct {
+	Name   string
+	Center []float64
+	Lambda float64
+	Amplit float64
+	Offset float64
+}
+
+func NewRadialWiggleWF(c []float64, l, a, o float64) *RadialWiggleWF {
+	return &RadialWiggleWF{"RadialWiggleWF", c, l, a, o}
+}
+
+// Eval implements the WarpFunc interface
+func (wf *RadialWiggleWF) Eval(x, y float64) (float64, float64) {
+	dx, dy := x-wf.Center[0], y-wf.Center[1]
+	r, th := toPolar(dx, dy)
+	_, l := MapValueToLambda(r+wf.Offset, wf.Lambda)
+	l = l / wf.Lambda * 2 * math.Pi
+	dth := math.Sin(l) * wf.Amplit
+	return toEuclidean(r, th+dth)
+}
+
 func toPolar(dx, dy float64) (float64, float64) {
 	return math.Hypot(dx, dy), math.Atan2(dy, dx)
 }
