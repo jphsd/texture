@@ -201,7 +201,7 @@ func NewRippleXWF(l, a, o float64) *RippleXWF {
 // Eval implements the WarpFunc interface
 func (wf *RippleXWF) Eval(x, y float64) (float64, float64) {
 	_, l := MapValueToLambda(y+wf.Offset, wf.Lambda)
-	l = l / wf.Lambda * 2 * math.Pi
+	l = l / wf.Lambda * twoPi
 	dx := math.Sin(l) * wf.Amplit
 	return x + dx, y
 }
@@ -225,7 +225,7 @@ func (wf *RadialRippleWF) Eval(x, y float64) (float64, float64) {
 	dx, dy := x-wf.Center[0], y-wf.Center[1]
 	r, th := toPolar(dx, dy)
 	_, l := MapValueToLambda(r+wf.Offset, wf.Lambda)
-	l = l / wf.Lambda * 2 * math.Pi
+	l = l / wf.Lambda * twoPi
 	dr := math.Sin(l) * wf.Amplit
 	return toEuclidean(r+dr, th)
 }
@@ -249,7 +249,7 @@ func (wf *RadialWiggleWF) Eval(x, y float64) (float64, float64) {
 	dx, dy := x-wf.Center[0], y-wf.Center[1]
 	r, th := toPolar(dx, dy)
 	_, l := MapValueToLambda(r+wf.Offset, wf.Lambda)
-	l = l / wf.Lambda * 2 * math.Pi
+	l = l / wf.Lambda * twoPi
 	dth := math.Sin(l) * wf.Amplit
 	return toEuclidean(r, th+dth)
 }
