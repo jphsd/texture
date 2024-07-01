@@ -1,6 +1,7 @@
 package texture
 
 // Distort applies a distortion to a source field based on the values it contains.
+// Based on Musgrave's VLNoise3() in Ch 8 of Texturing and Modeling
 type Distort struct {
 	Name           string
 	Src            Field
