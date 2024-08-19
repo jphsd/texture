@@ -4,6 +4,8 @@ import (
 	"github.com/jphsd/graphics2d/util"
 )
 
+// Wrap the NLs into named ones for marshalling
+
 type NonLinear struct {
 	Name string
 	NLF  util.NonLinear

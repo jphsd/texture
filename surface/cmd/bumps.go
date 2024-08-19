@@ -7,8 +7,8 @@ import (
 	"fmt"
 	col "image/color"
 
+	g2d "github.com/jphsd/graphics2d"
 	gi "github.com/jphsd/graphics2d/image"
-	"github.com/jphsd/graphics2d/util"
 	"github.com/jphsd/texture"
 	"github.com/jphsd/texture/color"
 	"github.com/jphsd/texture/surface"
@@ -17,9 +17,13 @@ import (
 func main() {
 	width, height := 800, 800
 
-	// nm := texture.DefaultNormal
-	nlf := &util.NLCircle2{}
-	nm := texture.NewNormal(texture.NewNonLinear(160, 160, 0, nlf, 2), 20, 20, 1, 1)
+	nlf := texture.NewNLCircle1()
+	wf := texture.NewNLWave([]float64{60}, []*texture.NonLinear{nlf}, false, true)
+	rg := texture.NewRadialGradient(wf)
+	xfm := g2d.Translate(-60, -60)
+	xg := texture.NewTransform(rg, xfm)
+	tf := texture.NewTiler(xg, []float64{120, 120})
+	nm := texture.NewNormal(tf, 20, 20, 1, 1)
 
 	// directional light
 	dlight := surface.NewDirectional(col.White, []float64{-1, -1, 1})
@@ -43,11 +47,11 @@ func main() {
 }
 
 type myMaterial struct {
-	Emissive, Ambient, Diffuse, Specular *color.FRGBA
+	Emissive, Ambient, Diffuse, Specular color.FRGBA
 	Shininess                            float64
 	Roughness                            float64
 }
 
-func (m *myMaterial) Eval2(x, y float64) (*color.FRGBA, *color.FRGBA, *color.FRGBA, *color.FRGBA, float64, float64) {
+func (m *myMaterial) Eval2(x, y float64) (color.FRGBA, color.FRGBA, color.FRGBA, color.FRGBA, float64, float64) {
 	return m.Emissive, m.Ambient, m.Diffuse, m.Specular, m.Shininess, m.Roughness
 }

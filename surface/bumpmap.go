@@ -32,7 +32,7 @@ func (bm *BumpMap) Eval2(x, y float64) color.Color {
 	// Ambient
 	ambient := bm.Ambient
 	if ambient == nil {
-		ambient = DefaultAmbient
+		ambient = &DefaultAmbient
 	}
 	col := amb.Prod(ambient.Color)
 
