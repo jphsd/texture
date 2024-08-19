@@ -2,21 +2,26 @@ package texture
 
 import "math/rand"
 
-// MulComnbiner is a multiplying combiner.
+// MulCombiner is a multiplying combiner.
 type MulCombiner struct {
 	Name string
 	Src1 Field
 	Src2 Field
+	Offs float64
+	Scal float64
 }
 
 func NewMulCombiner(src1, src2 Field) *MulCombiner {
-	return &MulCombiner{"MulCombiner", src1, src2}
+	return &MulCombiner{"MulCombiner", src1, src2, 0, 1}
 }
 
 // Eval2 implements the Field interface.
 func (c *MulCombiner) Eval2(x, y float64) float64 {
 	v1, v2 := c.Src1.Eval2(x, y), c.Src2.Eval2(x, y)
-	return v1 * v2
+	res := (v1 + c.Offs) * c.Scal * (v2 + c.Offs) * c.Scal
+	res /= c.Scal
+	res -= c.Offs
+	return res
 }
 
 // AddCombiner is an adding combiner (clamped).
