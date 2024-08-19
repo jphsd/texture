@@ -8,7 +8,7 @@ import (
 // BumpMap collects the ambient light, a direct light, a material, and normal map required to describe
 // an area. If the normal map is nil then the standard normal is use {0, 0, 1}
 type BumpMap struct {
-	Ambient *Ambient
+	Ambient Ambient
 	Direct  Light
 	Mat     Material
 	Normals texture.VectorField
@@ -30,11 +30,7 @@ func (bm *BumpMap) Eval2(x, y float64) color.Color {
 	_, amb, diff, _, _, _ := material.Eval2(x, y)
 
 	// Ambient
-	ambient := bm.Ambient
-	if ambient == nil {
-		ambient = &DefaultAmbient
-	}
-	col := amb.Prod(ambient.Color)
+	col := amb.Prod(bm.Ambient.Color)
 
 	// Diffuse
 	direct := bm.Direct

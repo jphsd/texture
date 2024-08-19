@@ -31,7 +31,7 @@ func main() {
 		img = texture.NewRGBA(width, height, alpha, 0, 0, 1, 1)
 		draw.Draw(res, image.Rect(width, 0, 2*width, height), img, image.Point{}, draw.Src)
 		// Bump Map
-		bm := &surface.BumpMap{nil, nil, nil, cf.Vector}
+		bm := &surface.BumpMap{surface.DefaultAmbient, nil, nil, cf.Vector}
 		img = texture.NewRGBA(width, height, bm, 0, 0, 1, 1)
 		draw.Draw(res, image.Rect(2*width, 0, 3*width, height), img, image.Point{}, draw.Src)
 		gi.SaveImage(res, fmt.Sprintf("%06d", cnt))

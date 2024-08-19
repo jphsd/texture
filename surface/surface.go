@@ -39,11 +39,9 @@ func (s *Surface) Eval2(x, y float64) col.Color {
 	lamb := amb.Prod(acol) // Ambient
 	col := em              // Emissive
 	col = col.Add(lamb)
-	/*
-		if diff == nil {
-			return col
-		}
-	*/
+	if diff.A < 0.00001  {
+		return col
+	}
 
 	// Cummulative diffuse and specular for all lights
 	normal := normals.Eval2(x, y)
@@ -64,24 +62,24 @@ func (s *Surface) Eval2(x, y float64) col.Color {
 			lcol = lcol.Scale(pow / (dist * dist))
 		}
 		cdiff = cdiff.Add(lcol.Prod(diff.Scale(lambert))) // Diffuse
-		//if spec != nil {
-		if blinn {
-			// Blinn-Phong
-			half := Unit([]float64{dir[0] + view[0], dir[1] + view[1], dir[2] + view[2]})
-			dp := Dot(half, normal)
-			if dp > 0 {
-				phong := math.Pow(dp, shine*4)
-				cspec = cspec.Add(lcol.Prod(spec.Scale(phong))) // Specular
-			}
-		} else {
-			// Phong
-			dp := Dot(Reflect(dir, normal), view)
-			if dp > 0 {
-				phong := math.Pow(dp, shine)
-				cspec = cspec.Add(lcol.Prod(spec.Scale(phong))) // Specular
+		if spec.A > 0.00001 {
+			if blinn {
+				// Blinn-Phong
+				half := Unit([]float64{dir[0] + view[0], dir[1] + view[1], dir[2] + view[2]})
+				dp := Dot(half, normal)
+				if dp > 0 {
+					phong := math.Pow(dp, shine*4)
+					cspec = cspec.Add(lcol.Prod(spec.Scale(phong))) // Specular
+				}
+			} else {
+				// Phong
+				dp := Dot(Reflect(dir, normal), view)
+				if dp > 0 {
+					phong := math.Pow(dp, shine)
+					cspec = cspec.Add(lcol.Prod(spec.Scale(phong))) // Specular
+				}
 			}
 		}
-		//}
 	}
 	col = col.Add(cdiff)
 	col = col.Add(cspec)
