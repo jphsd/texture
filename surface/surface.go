@@ -9,10 +9,10 @@ import (
 )
 
 // Surface collects the ambient light, lights, a material, and normal map required to describe
-// an area. If the normal map is nil then the standard normal is use {0, 0, 1}
+// an area. If the normal map is nil then the standard normal is used {0, 0, 1}
 type Surface struct {
 	Ambient Light
-	Lights  []Light
+	Lights  []Directional
 	Mat     Material
 	Normals texture.VectorField
 }
@@ -39,22 +39,27 @@ func (s *Surface) Eval2(x, y float64) col.Color {
 	lamb := amb.Prod(acol) // Ambient
 	col := em              // Emissive
 	col = col.Add(lamb)
-	if diff.A < 0.00001  {
+
+	// If material has no diffuse relflectance, we're done
+	if diff.IsBlack() {
 		return col
 	}
 
 	// Cummulative diffuse and specular for all lights
 	normal := normals.Eval2(x, y)
+	nd, ns := normal, normal
 	if rough > 0 {
-		normal = Roughen(rough, normal)
+		nd = Roughen(rough, normal)
+		ns = Roughen(rough, normal)
 	}
 	cdiff, cspec := color.FRGBA{}, color.FRGBA{}
 	for _, light := range s.Lights {
 		lcol, dir, dist, pow := light.Eval2(x, y)
 		if lcol.IsBlack() {
+			// Nothing to see here
 			continue
 		}
-		lambert := Dot(dir, normal)
+		lambert := Dot(dir, nd)
 		if lambert < 0 {
 			continue
 		}
@@ -62,18 +67,18 @@ func (s *Surface) Eval2(x, y float64) col.Color {
 			lcol = lcol.Scale(pow / (dist * dist))
 		}
 		cdiff = cdiff.Add(lcol.Prod(diff.Scale(lambert))) // Diffuse
-		if spec.A > 0.00001 {
+		if !spec.IsBlack() {
 			if blinn {
 				// Blinn-Phong
 				half := Unit([]float64{dir[0] + view[0], dir[1] + view[1], dir[2] + view[2]})
-				dp := Dot(half, normal)
+				dp := Dot(half, ns)
 				if dp > 0 {
 					phong := math.Pow(dp, shine*4)
 					cspec = cspec.Add(lcol.Prod(spec.Scale(phong))) // Specular
 				}
 			} else {
 				// Phong
-				dp := Dot(Reflect(dir, normal), view)
+				dp := Dot(Reflect(dir, ns), view)
 				if dp > 0 {
 					phong := math.Pow(dp, shine)
 					cspec = cspec.Add(lcol.Prod(spec.Scale(phong))) // Specular
