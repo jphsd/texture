@@ -6,9 +6,8 @@ Package texture contains functions that can be combined to create image textures
 Here's a simple example that creates a Perlin value field and renders it to an image:
 
 	f := texture.NewPerlin(12345)
-	cf := texture.NewColorGray(f) // Convert value field to color field
 	// Create a 600x600 image containing a field rendered from 0,0 in 0.075 steps
-	img := texture.NewTextureGray16(600, 600, cf, 0, 0, 0.075, 0.075, false)
+	img := texture.NewTextureGray16(600, 600, f, 0, 0, 0.075, 0.075, false)
 
 # 1. Fields
 
@@ -342,7 +341,7 @@ Go, however, doesn't since it's [golang.org/x/image/vector.Draw] takes an image.
 To address this [texture] has some utility functions that use simple gradient textures to create the same
 effect.
 
-The gradients are all value fields and mapped to either [color.Gray16] or [color.RGBA].
+The gradients are all value fields and mapped to either [image/color.Gray16] or [image/color.RGBA].
 In the latter case, by using [graphics2d/image.Colorizer].
   - [NewLinearGray16]
   - [NewRadialGray16]
