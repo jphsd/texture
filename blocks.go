@@ -49,7 +49,7 @@ func (bn *BlockNoise) Eval2(x, y float64) float64 {
 		return v
 	}
 
-	// Need to check the preceeding cell (to the left)
+	// Need to check the preceding cell (to the left)
 	c -= 1
 	if c < 0 {
 		c = bn.Cols - 1
