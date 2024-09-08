@@ -23,8 +23,7 @@ func NewLinearGray16(w, h int, p1, p2 []float64, wf *NonLinear, mirror, once boo
 	xfm.Rotate(-th)
 	xfm.Translate(-p1[0], -p1[1])
 	f2 := NewTransform(f1, xfm)
-	cf := NewColorGray(f2)
-	return NewTextureGray16(w, h, cf, 0, 0, 1, 1)
+	return NewTextureGray16(w, h, f2, 0, 0, 1, 1, false)
 }
 
 func NewRadialGray16(w, h int, c []float64, r float64, wf *NonLinear, mirror, once bool) *TextureGray16 {
@@ -36,8 +35,7 @@ func NewRadialGray16(w, h int, c []float64, r float64, wf *NonLinear, mirror, on
 	xfm := graphics2d.NewAff3()
 	xfm.Translate(-c[0], -c[1])
 	f2 := NewTransform(f1, xfm)
-	cf := NewColorGray(f2)
-	return NewTextureGray16(w, h, cf, 0, 0, 1, 1)
+	return NewTextureGray16(w, h, f2, 0, 0, 1, 1, false)
 }
 
 func NewConicGray16(w, h int, c []float64, th float64, wf *NonLinear) *TextureGray16 {
@@ -50,8 +48,7 @@ func NewConicGray16(w, h int, c []float64, th float64, wf *NonLinear) *TextureGr
 	xfm.Rotate(-th)
 	xfm.Translate(-c[0], -c[1])
 	f2 := NewTransform(f1, xfm)
-	cf := NewColorGray(f2)
-	return NewTextureGray16(w, h, cf, 0, 0, 1, 1)
+	return NewTextureGray16(w, h, f2, 0, 0, 1, 1, false)
 }
 
 // Colorizer wrappers around the grayscale gradients
