@@ -1,6 +1,6 @@
 package texture
 
-// Pattern and NL
+import "math"
 
 type Wave interface {
 	Eval(v float64) float64
@@ -10,22 +10,25 @@ type Wave interface {
 // Given a value in (-inf, inf) and a wavelength, return number of waves [0,inf) and t [0,lambda) for the value.
 func MapValueToLambda(v, lambda float64) (int, float64) {
 	if v < 0 {
-		n, v := MapValueToLambda(-v, lambda)
-		if v < 0.000001 {
-			return n, 0
+		if v > -lambda {
+			return 0, v + lambda
 		}
-		return n, lambda - v
-	} else if v < lambda {
+		n, f := math.Modf(v / lambda)
+		if f < 0 {
+			return -int(n), lambda * (1 + f)
+		}
+		return -int(n) - 1, f
+	}
+
+	if v < lambda {
 		return 0, v
 	}
 
-	// v is greater than or equal to lambda
-	n := int(v / lambda)
-	v -= float64(n) * lambda
-	return n, v
+	n, f := math.Modf(v / lambda)
+	return int(n), lambda * f
 }
 
-// Non-linears
+// Non-linear waves
 
 type NLWave struct {
 	Name      string
@@ -72,6 +75,9 @@ func (g *NLWave) Eval(v float64) float64 {
 	r, v := MapValueToLambda(v, sum)
 
 	if g.Once {
+		if ov < 0 {
+			return -1
+		}
 		if g.Mirrored && r > 1 {
 			return -1
 		}
@@ -121,6 +127,175 @@ func (g *NLWave) Lambda() float64 {
 		l *= 2
 	}
 	return l
+}
+
+// DCWave - nlf for up and nlf for down. If only one nlf, use for both up and down. Independent lambdas.
+
+type DCWave struct {
+	Name string
+	L1   float64
+	L2   float64
+	Sum  float64
+	NL1  *NonLinear
+	NL2  *NonLinear
+	Once bool
+}
+
+func NewDCWave(lambdas []float64, nlfs []*NonLinear, once bool) *DCWave {
+	l1 := lambdas[0]
+	var l2 float64
+	if len(lambdas) > 1 {
+		l2 = lambdas[1]
+	} else {
+		l2 = l1
+	}
+	nl1 := nlfs[0]
+	var nl2 *NonLinear
+	if len(nlfs) > 1 {
+		nl2 = nlfs[1]
+	} else {
+		nl2 = nl1
+	}
+	return &DCWave{"DCWave", l1, l2, l1 + l2, nl1, nl2, once}
+}
+
+func (g *DCWave) Eval(v float64) float64 {
+	// Map v to n, v [0,sum)
+	ov := v
+	r, v := MapValueToLambda(v, g.Sum)
+
+	if g.Once && (ov < 0 || r > 0) {
+		return -1
+	}
+
+	// Find nlf and t for v
+	nlf := g.NL1
+	var t float64
+	if v > g.L1 {
+		nlf = g.NL2
+		t = 1 - (v-g.L1)/g.L2
+	} else {
+		t = v / g.L1
+	}
+
+	return nlf.Eval(t)
+}
+
+func (g *DCWave) Lambda() float64 {
+	return g.Sum
+}
+
+// ACWave - nlfs for each quadrant. Independent lambdas. Start and end at 0.
+
+type ACWave struct {
+	Name      string
+	Lambdas   [4]float64
+	CumLambda [4]float64
+	NLFs      [4]*NonLinear
+	Once      bool
+}
+
+func NewACWave(lambdas []float64, nlfs []*NonLinear, once bool) *ACWave {
+	res := &ACWave{}
+	res.Name = "ACWave"
+	switch len(lambdas) {
+	default:
+		fallthrough
+	case 1:
+		res.Lambdas[0] = lambdas[0]
+		res.Lambdas[1] = lambdas[0]
+		res.Lambdas[2] = lambdas[0]
+		res.Lambdas[3] = lambdas[0]
+	case 2:
+		res.Lambdas[0] = lambdas[0]
+		res.Lambdas[1] = lambdas[1]
+		res.Lambdas[2] = lambdas[0]
+		res.Lambdas[3] = lambdas[1]
+	case 4:
+		res.Lambdas[0] = lambdas[0]
+		res.Lambdas[1] = lambdas[1]
+		res.Lambdas[2] = lambdas[2]
+		res.Lambdas[3] = lambdas[3]
+	}
+	sum := 0.0
+	for i := 0; i < 4; i++ {
+		sum += res.Lambdas[i]
+		res.CumLambda[i] = sum
+	}
+	switch len(nlfs) {
+	default:
+		fallthrough
+	case 1:
+		res.NLFs[0] = nlfs[0]
+		res.NLFs[1] = nlfs[0]
+		res.NLFs[2] = nlfs[0]
+		res.NLFs[3] = nlfs[0]
+	case 2:
+		res.NLFs[0] = nlfs[0]
+		res.NLFs[1] = nlfs[1]
+		res.NLFs[2] = nlfs[0]
+		res.NLFs[3] = nlfs[1]
+	case 4:
+		res.NLFs[0] = nlfs[0]
+		res.NLFs[1] = nlfs[1]
+		res.NLFs[2] = nlfs[2]
+		res.NLFs[3] = nlfs[3]
+	}
+	res.Once = once
+
+	return res
+}
+
+func (g *ACWave) Eval(v float64) float64 {
+	sum := g.CumLambda[3]
+
+	// Map v to n, v [0,sum)
+	ov := v
+	r, v := MapValueToLambda(v, sum)
+
+	if g.Once && (ov < 0 || r > 0) {
+		return 0
+	}
+
+	// Find nlf for v
+	q := 0
+	for q < 4 {
+		if v > g.CumLambda[q] {
+			q++
+		} else {
+			break
+		}
+	}
+	v1 := v
+	if q > 0 {
+		v1 -= g.CumLambda[q-1]
+	}
+
+	// Calculate t
+	var t float64
+	if q > 3 {
+		// Rolled off end due to rounding errors
+		t = 1
+		q--
+	} else {
+		t = v1 / g.Lambdas[q]
+	}
+	// Modify t dep on quadrant
+	if q == 1 || q == 3 {
+		t = 1 - t
+	}
+
+	// Calculate result based on quadrant
+	res := g.NLFs[q].Eval0(t)
+	if q > 1 {
+		res = -res
+	}
+
+	return res
+}
+
+func (g *ACWave) Lambda() float64 {
+	return g.CumLambda[3]
 }
 
 // Patterns
@@ -187,7 +362,6 @@ func patternValidate(pat []float64) []float64 {
 	return pat
 }
 
-// Eval implements the Field interface.
 func (g *PatternWave) Eval(v float64) float64 {
 	nl := len(g.Lambdas)
 	sum := g.CumLambda[nl-1]
