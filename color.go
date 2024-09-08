@@ -189,7 +189,7 @@ type ColorBlend struct {
 }
 
 func NewColorBlend(src1, src2 ColorField, src3 Field, lerp LerpType) *ColorBlend {
-	return &ColorBlend{"ColorrBlend", src1, src2, src3, lerp}
+	return &ColorBlend{"ColorBlend", src1, src2, src3, lerp}
 }
 
 // Eval2 implements the ColorField interface.

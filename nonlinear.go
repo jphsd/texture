@@ -11,6 +11,10 @@ type NonLinear struct {
 	NLF  util.NonLinear
 }
 
+func (nl *NonLinear) Eval0(t float64) float64 {
+	return nl.NLF.Transform(t)
+}
+
 func (nl *NonLinear) Eval(t float64) float64 {
 	// util.NonLinear is in range [0,1], map to [-1,1]
 	return nl.NLF.Transform(t)*2 - 1

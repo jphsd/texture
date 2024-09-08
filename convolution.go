@@ -3,7 +3,7 @@ package texture
 type Convolution struct {
 	Name string
 	Src  Field
-	Kern [][]float64
+	Kern [][]float64 // triplet {dx, dy, w}
 }
 
 // kernel {dx, dy, w}

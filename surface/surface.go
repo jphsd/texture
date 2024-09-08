@@ -12,7 +12,7 @@ import (
 // an area. If the normal map is nil then the standard normal is used {0, 0, 1}
 type Surface struct {
 	Ambient Light
-	Lights  []Directional
+	Lights  []Light
 	Mat     Material
 	Normals texture.VectorField
 }
@@ -20,6 +20,7 @@ type Surface struct {
 var blinn = false
 
 // Eval2 implements the ColorField interface.
+// Based on the Phong reflection model: Ka, Kd, Ks, shininess with emmisive added (see wiki entry)
 func (s *Surface) Eval2(x, y float64) col.Color {
 	// For any point, the color rendered is the sum of the emissive, ambient and the diffuse/specular
 	// contributions from all of the lights.

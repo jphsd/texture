@@ -5,7 +5,7 @@ import (
 	"math"
 )
 
-// VectorFields contains the field to use in the color evaluation and produces a grayscale color.
+// VectorFields produces a vector field from a slice of fields
 type VectorFields struct {
 	Name string
 	Srcs []Field
