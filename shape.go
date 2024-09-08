@@ -116,3 +116,21 @@ func (s *ShapeCombinerCF) Eval2(x, y float64) color.Color {
 	}
 	return s.Src2.Eval2(x, y)
 }
+
+type ShapeCombinerVF struct {
+	Name  string
+	Src1  VectorField
+	Src2  VectorField
+	Shape *graphics2d.Shape
+}
+
+func NewShapeCombinerVF(src1, src2 ColorField, shape *graphics2d.Shape) *ShapeCombinerVF {
+	return &ShapeCombinerVF{"ShapeCombinerVF", src1, src2, shape}
+}
+
+func (s *ShapeCombinerVF) Eval2(x, y float64) []float64 {
+	if s.Shape.PointInShape([]float64{x, y}) {
+		return s.Src1.Eval2(x, y)
+	}
+	return s.Src2.Eval2(x, y)
+}

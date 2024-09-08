@@ -23,6 +23,25 @@ func (p *Pixelate) Eval2(x, y float64) float64 {
 	return res
 }
 
+// PixelateVF provides pixelation for a vector field.
+type PixelateVF struct {
+	Name       string
+	Src        VectorField
+	Resolution float64
+}
+
+// NewPixelateVF creates a new Pixelate with the specified resolution.
+func NewPixelateVF(src VectorField, resolution float64) *PixelateVF {
+	return &PixelateVF{"PixelateVF", src, resolution}
+}
+
+// Eval2 implements the Field interface.
+func (p *PixelateVF) Eval2(x, y float64) []float64 {
+	x, y = pixelInd(x, y, p.Resolution)
+	res := p.Src.Eval2(x, y)
+	return res
+}
+
 // PixelateCF provides pixelation for a color field.
 type PixelateCF struct {
 	Name       string
