@@ -82,7 +82,7 @@ func MakeVectorField(md, d int) texture.VectorField {
 
 // MakeSelect creates a new field from a vector field.
 func MakeSelect(md, d int) texture.Field {
-	return texture.NewSelect(MakeVectorField(md, d+1), rand.Intn(3))
+	return texture.NewSelect(MakeVectorField(md, d+1), rand.Intn(3), 1)
 }
 
 // MakeDirection creates a new field from a vector field.
@@ -92,7 +92,7 @@ func MakeDirection(md, d int) texture.Field {
 
 // MakeMagnitude creates a new field from a vector field.
 func MakeMagnitude(md, d int) texture.Field {
-	return texture.NewMagnitude(MakeVectorField(md, d+1))
+	return texture.NewMagnitude(MakeVectorField(md, d+1), 1)
 }
 
 // MakeNormal creates a new vector field from a field.
