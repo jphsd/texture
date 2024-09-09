@@ -73,12 +73,13 @@ func (d *Direction) Eval2(x, y float64) float64 {
 
 // Magnitude converts a VectorField to a Field based on the vector's magnitude.
 type Magnitude struct {
-	Name string
-	Src  VectorField
+	Name  string
+	Src   VectorField
+	Scale float64
 }
 
-func NewMagnitude(src VectorField) *Magnitude {
-	return &Magnitude{"Magnitude", src}
+func NewMagnitude(src VectorField, scale float64) *Magnitude {
+	return &Magnitude{"Magnitude", src, scale}
 }
 
 // Eval2 implements the Field interface. Always >= 0
@@ -88,24 +89,26 @@ func (m *Magnitude) Eval2(x, y float64) float64 {
 	for _, f := range v {
 		s += f * f
 	}
-	return math.Sqrt(s)
+	r := math.Sqrt(s) * m.Scale
+	return clamp(r)
 }
 
 // Select converts a VectorField to a field by selecting one of its components.
 type Select struct {
-	Name string
-	Src  VectorField
-	Chan int
+	Name  string
+	Src   VectorField
+	Chan  int
+	Scale float64
 }
 
-func NewSelect(src VectorField, ch int) *Select {
-	return &Select{"Select", src, ch}
+func NewSelect(src VectorField, ch int, scale float64) *Select {
+	return &Select{"Select", src, ch, scale}
 }
 
 // Eval2 implements the Field interface.
 func (s *Select) Eval2(x, y float64) float64 {
-	v := s.Src.Eval2(x, y)[s.Chan]
-	return v
+	v := s.Src.Eval2(x, y)[s.Chan] * s.Scale
+	return clamp(v)
 }
 
 // Weighted converts a VectorField to a field by selecting one of its components.
@@ -130,5 +133,5 @@ func (w *Weighted) Eval2(x, y float64) float64 {
 	for i := 0; i < n; i++ {
 		s += v[i] * w.Weights[i]
 	}
-	return s
+	return clamp(s)
 }

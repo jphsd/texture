@@ -71,5 +71,5 @@ func (c FRGBA) Scale(v float64) FRGBA {
 
 // IsBlack returns true if the color is black.
 func (c FRGBA) IsBlack() bool {
-	return c.R < 0.0001 && c.G < 0.0001 && c.B < 0.0001
+	return c.A < 0.0001 || (c.R < 0.0001 && c.G < 0.0001 && c.B < 0.0001)
 }

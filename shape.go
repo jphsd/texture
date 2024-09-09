@@ -124,7 +124,7 @@ type ShapeCombinerVF struct {
 	Shape *graphics2d.Shape
 }
 
-func NewShapeCombinerVF(src1, src2 ColorField, shape *graphics2d.Shape) *ShapeCombinerVF {
+func NewShapeCombinerVF(src1, src2 VectorField, shape *graphics2d.Shape) *ShapeCombinerVF {
 	return &ShapeCombinerVF{"ShapeCombinerVF", src1, src2, shape}
 }
 

@@ -21,6 +21,7 @@ type Fractal struct {
 // NewFractal returns a new Fractal instance.
 func NewFractal(src Field, xfm *g2d.Aff3, comb OctaveCombiner, octaves float64) *Fractal {
 	oct := int(octaves)
+	oct++
 	w := make([]float64, oct)
 	for i := 0; i < oct; i++ {
 		w[i] = 1
