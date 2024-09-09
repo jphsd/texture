@@ -24,8 +24,7 @@ func main() {
 	xfm3 := g2d.BoxTransform(0, 0, 600, 0, 600, 200, 200, 400, 200, 400)
 	for i := 1; i < 7; i++ {
 		src := texture.NewIFS([]float64{float64(width), float64(height)}, []*g2d.Aff3{xfm1, xfm2, xfm3}, i)
-		cf := texture.NewColorGray(src)
-		img := texture.NewRGBA(width, height, cf, 0, 0, 1, 1)
+		img := texture.NewTextureGray16(width, height, src, 0, 0, 1, 1, false)
 		gi.SaveImage(img, fmt.Sprintf("ifs-%d", i))
 	}
 }

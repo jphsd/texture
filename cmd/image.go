@@ -33,7 +33,7 @@ func main() {
 	xfm.RotateAbout(rand.Float64()*math.Pi*2, float64(width)/2, float64(height)/2)
 	f3 := texture.NewTransformCF(f2, xfm)
 
-	out := texture.NewRGBA(width, height, f3, 0, 0, 1, 1)
+	out := texture.NewTextureRGBA(width, height, f3, 0, 0, 1, 1, false)
 	image.SaveImage(out, "image")
 	texture.SaveJSON(f3, "image")
 }

@@ -3,7 +3,6 @@
 package main
 
 import (
-	g2d "github.com/jphsd/graphics2d"
 	"github.com/jphsd/graphics2d/image"
 	"github.com/jphsd/texture"
 )
@@ -13,7 +12,6 @@ func main() {
 	width, height := 1000, 1000
 
 	f1 := texture.NewSquares(25)
-	cf := texture.NewColorGray(f1)
 
 	//rwf := IdentityWF{}
 	//rwf := texture.NewRadialWF([]float64{500, 500}, 1,  1)
@@ -26,9 +24,9 @@ func main() {
 	rwf := texture.NewRadialRippleWF([]float64{500, 500}, 100, 10, 0)
 	//rwf := texture.NewRadialWiggleWF([]float64{500, 500}, 100, 0.1, 0)
 
-	wf := texture.NewWarpCF(cf, rwf)
+	wf := texture.NewWarp(f1, rwf)
 
-	img := texture.NewRGBA(width, height, wf, 0, 0, 1, 1)
+	img := texture.NewTextureGray16(width, height, wf, 0, 0, 1, 1, false)
 
 	image.SaveImage(img, "warp")
 }

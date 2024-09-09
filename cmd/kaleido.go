@@ -27,7 +27,7 @@ func main() {
 	for true {
 		a := 0.0
 		cf := random.MakeColorField(6, 0)
-		img := texture.NewRGBA(width, height, cf, 0, 0, 1, 1)
+		img := texture.NewTextureRGBA(width, height, cf, 0, 0, 1, 1, false)
 		gi.SaveImage(img, fmt.Sprintf("%06d-0k", cnt))
 
 		pts := make([][]float64, *n*2)
@@ -52,7 +52,7 @@ func main() {
 		}
 		cf = texture.NewReflectCF(cf, prev, pts[0])
 
-		img = texture.NewRGBA(width, height, cf, 0, 0, 1, 1)
+		img = texture.NewTextureRGBA(width, height, cf, 0, 0, 1, 1, false)
 		gi.SaveImage(img, fmt.Sprintf("%06d-1k", cnt))
 
 		// Zoom out
@@ -61,7 +61,7 @@ func main() {
 		xfm.ScaleAbout(2, 2, 400, 400)
 		cf = texture.NewTransformCF(cf, xfm)
 
-		img = texture.NewRGBA(width, height, cf, 0, 0, 1, 1)
+		img = texture.NewTextureRGBA(width, height, cf, 0, 0, 1, 1, false)
 		gi.SaveImage(img, fmt.Sprintf("%06d-2k", cnt))
 
 		cnt++

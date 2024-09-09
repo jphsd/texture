@@ -25,7 +25,6 @@ func main() {
 
 	f3 := texture.NewEdge(f2, texture.Z4Support(1, 1))
 
-	cf2 := texture.NewColorGray(f3)
-	fimg := texture.NewRGBA(width, height, cf2, 0, 0, 1, 1)
+	fimg := texture.NewTextureGray16(width, height, f3, 0, 0, 1, 1, false)
 	image.SaveImage(fimg, "morph")
 }
