@@ -198,24 +198,24 @@ They map (x, y) to (x', y').
   - [Transform]
   - [Warp]
 
-# 8.1 Transform (F, VF, CF)
+# 8.1 Transform (F,VF,CF)
 
 This transformer applies an affine transform [graphics2d.Aff3] to input coordinates allowing for translations,
 rotations, scalings and shearings.
 When something other than a gradient in x is required, the affine transform can be used to move, scale and rotate
 it to the desired location.
 
-# 8.2 Tiler (F, VF, CF)
+# 8.2 Tiler (F,VF,CF)
 
 Tiler transforms allow finite areas to be replicated across the infinite plane.
 Useful for creating repeating patterns and images.
 
-# 8.3 Reflect (F, VF, CF)
+# 8.3 Reflect (F,VF,CF)
 
 The relection transforms take a line defined by two points as the location of a mirror.
 Points on the positive side of the line remain unchanged while those on the negative are remapped.
 
-# 8.4 Warp (F, VF, CF)
+# 8.4 Warp (F,VF,CF)
 
 The warp transforms provide generalized image warping functionality not provided by the preceeding.
 They rely on a function [WarpFunc] to map points from one domain to the other.
@@ -228,7 +228,7 @@ They rely on a function [WarpFunc] to map points from one domain to the other.
   - [RadialRippleWF]
   - [RadialWiggleWF]
 
-# 8.5 Displace (F, VF, CF)
+# 8.5 Displace (F,VF,CF)
 
 The displace transforms use two fields to perturb the location returned from a third field.
 The degree of perturbation is controlled by a scaling factor.
@@ -240,14 +240,15 @@ a fixed scaling.
 [Distort] provides a self referential transform that samples the field three times, once each for the x and y
 displacements and once with the new x' and y'.
 
-# 8.7 Pixelate (F, VF, CF)
+# 8.7 Pixelate (F,VF,CF)
 
 These transforms apply a resolution filter to x and y.
 Note that pixelate does not perform true pixelation in terms of averaging values over the desired resolution.
 
-# 8.8 Strip (F, VF, CF)
+# 8.8 Strip (F,VF,CF)
 
 These transforms replace y with a fixed value when performing Eval2(x, y).
+[Strip] also implements the [Wave] interface and can be used in gradient leaves.
 
 # 9. Nodes - Fractal
 
@@ -343,7 +344,7 @@ To address this [texture] has some utility functions that use simple gradient te
 effect.
 
 The gradients are all value fields and mapped to either [image/color.Gray16] or [image/color.RGBA].
-In the latter case, by using [graphics2d/image.Colorizer].
+In the latter case, by using [github.com/jphsd/graphics2d/image.Colorizer].
   - [NewLinearGray16]
   - [NewRadialGray16]
   - [NewConicGray16]

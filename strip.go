@@ -16,6 +16,14 @@ func (s *Strip) Eval2(x, y float64) float64 {
 	return s.Src.Eval2(x, s.Value)
 }
 
+func (s *Strip) Eval(x float64) float64 {
+	return s.Src.Eval2(x, s.Value)
+}
+
+func (s *Strip) Lambda() float64 {
+	return math.MaxFloat64
+}
+
 type StripCF struct {
 	Name  string
 	Src   ColorField
