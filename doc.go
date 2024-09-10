@@ -282,6 +282,7 @@ Three types are defined as starting points and allow a variety of waveforms to b
  1. [NLWave] multiple wave shapes with varying wave lengths
  2. [DCWave] one wave shape for the rising edge and one for the falling edge
  3. [ACWave] a wave shape per quadrant
+ 4. [InvertWave] takes a wave and inverts it
 
 All of them utilize the non-linear functions provided in [graphics2d].
 For convenience these are wrapped in [NonLinear], primarily so that the output is mapped from
