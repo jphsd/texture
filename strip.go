@@ -1,6 +1,9 @@
 package texture
 
-import "image/color"
+import (
+	"image/color"
+	"math"
+)
 
 type Strip struct {
 	Name  string
