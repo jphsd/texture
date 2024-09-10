@@ -419,3 +419,22 @@ func (g *PatternWave) Eval(v float64) float64 {
 func (g *PatternWave) Lambda() float64 {
 	return g.CumLambda[len(g.Lambdas)-1]
 }
+
+// InvertWave - inverts the input wave.
+
+type InvertWave struct {
+	Name string
+	Src  Wave
+}
+
+func NewInvertWave(src Wave) *InvertWave {
+	return &InvertWave{"InvertWave", src}
+}
+
+func (g *InvertWave) Eval(v float64) float64 {
+	return 2 - g.Src.Eval(v)
+}
+
+func (g *InvertWave) Lambda() float64 {
+	return g.Src.Lambda()
+}
