@@ -1,6 +1,9 @@
 package texture
 
-import "math"
+import (
+	//"fmt"
+	"math"
+)
 
 type Wave interface {
 	Eval(v float64) float64
@@ -9,6 +12,12 @@ type Wave interface {
 
 // Given a value in (-inf, inf) and a wavelength, return number of waves [0,inf) and t [0,lambda) for the value.
 func MapValueToLambda(v, lambda float64) (int, float64) {
+	n, l := MapValueToLambda0(v, lambda)
+	//fmt.Printf("v %f lambda %f n %d fl %f\n", v, lambda, n, l)
+	return n, l
+}
+
+func MapValueToLambda0(v, lambda float64) (int, float64) {
 	if v < 0 {
 		if v > -lambda {
 			return 0, v + lambda
@@ -432,7 +441,7 @@ func NewInvertWave(src Wave) *InvertWave {
 }
 
 func (g *InvertWave) Eval(v float64) float64 {
-	return 2 - g.Src.Eval(v)
+	return -g.Src.Eval(v)
 }
 
 func (g *InvertWave) Lambda() float64 {
