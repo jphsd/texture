@@ -35,7 +35,7 @@ Examples of nodes are the filter fields like [AbsFilter], [ClipFilter] and [Inve
 All of these require at least one source field in order to operate.
 
 Textures are built from the leaves upward until a root node has been created.
-This node can then be passed to a function that will realize it, such as [NewRGBA] which generates
+This node can then be passed to a function that will realize it, such as [NewTextureRGBA] which generates
 an [image.RGBA] by repeatedly calling the root's [ColorField] Eval2 function for each image pixel.
 
 # 3. Leaves - 1D
@@ -84,7 +84,7 @@ to theta / (2 * Pi).
 
 # 4.3 Image (CF)
 
-The image field uses the uderlying image to figure the color value to return for any given location.
+The image field uses the underlying image to figure the color value to return for any given location.
 Supported interpolations are [NearestInterp], [LinearInterp], [CubicInterp], [P3Interp] and [P5Interp].
 
 # 4.4 Perlin (F)
