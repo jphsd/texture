@@ -217,7 +217,7 @@ Points on the positive side of the line remain unchanged while those on the nega
 
 # 8.4 Warp (F,VF,CF)
 
-The warp transforms provide generalized image warping functionality not provided by the preceeding.
+The warp transforms provide generalized image warping functionality not provided by the preceding.
 They rely on a function [WarpFunc] to map points from one domain to the other.
   - [RadialWF]
   - [SwirlWF]
