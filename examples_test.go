@@ -8,37 +8,37 @@ import (
 	"math"
 )
 
-func ExampleLinearGradient_Saw() {
+func ExampleLinearGradient_saw() {
 	nl := texture.NewNLLinear()
 	w := texture.NewNLWave([]float64{125}, []*texture.NonLinear{nl}, false, false)
 	f := texture.NewLinearGradient(w)
 
 	img := texture.NewTextureGray16(600, 600, f, 0, 0, 1, 1, false)
-	image.SaveImage(img, "ExampleLinearGradient_Saw")
-	fmt.Printf("Generated ExampleLinearGradient_Saw")
-	// Output: Generated ExampleLinearGradient_Saw
+	image.SaveImage(img, "ExampleLinearGradient_saw")
+	fmt.Printf("Generated ExampleLinearGradient_saw")
+	// Output: Generated ExampleLinearGradient_saw
 }
 
-func ExampleLinearGradient_Triangle() {
+func ExampleLinearGradient_triangle() {
 	nl := texture.NewNLLinear()
 	w := texture.NewNLWave([]float64{125}, []*texture.NonLinear{nl}, true, false)
 	f := texture.NewLinearGradient(w)
 
 	img := texture.NewTextureGray16(600, 600, f, 0, 0, 1, 1, false)
-	image.SaveImage(img, "ExampleLinearGradient_Triangle")
-	fmt.Printf("Generated ExampleLinearGradient_Triangle")
-	// Output: Generated ExampleLinearGradient_Triangle
+	image.SaveImage(img, "ExampleLinearGradient_triangle")
+	fmt.Printf("Generated ExampleLinearGradient_triangle")
+	// Output: Generated ExampleLinearGradient_triangle
 }
 
-func ExampleLinearGradient_Sine() {
+func ExampleLinearGradient_sine() {
 	nl := texture.NewNLSin()
 	w := texture.NewNLWave([]float64{125}, []*texture.NonLinear{nl}, true, false)
 	f := texture.NewLinearGradient(w)
 
 	img := texture.NewTextureGray16(600, 600, f, 0, 0, 1, 1, false)
-	image.SaveImage(img, "ExampleLinearGradient_Sine")
-	fmt.Printf("Generated ExampleLinearGradient_Sine")
-	// Output: Generated ExampleLinearGradient_Sine
+	image.SaveImage(img, "ExampleLinearGradient_sine")
+	fmt.Printf("Generated ExampleLinearGradient_sine")
+	// Output: Generated ExampleLinearGradient_sine
 }
 
 func ExampleMulCombiner() {
@@ -73,61 +73,61 @@ func ExampleMaxCombiner() {
 	// Output: Generated ExampleMaxCombiner
 }
 
-func ExampleLinearGradient_Circular() {
+func ExampleLinearGradient_circular() {
 	nl1 := texture.NewNLCircle1()
 	nl2 := texture.NewNLCircle2()
 	w := texture.NewDCWave([]float64{125}, []*texture.NonLinear{nl1, nl2}, false)
 	f := texture.NewLinearGradient(w)
 
 	img := texture.NewTextureGray16(600, 600, f, 0, 0, 1, 1, false)
-	image.SaveImage(img, "ExampleLinearGradient_Circular")
-	fmt.Printf("Generated ExampleLinearGradient_Circular")
-	// Output: Generated ExampleLinearGradient_Circular
+	image.SaveImage(img, "ExampleLinearGradient_circular")
+	fmt.Printf("Generated ExampleLinearGradient_circular")
+	// Output: Generated ExampleLinearGradient_circular
 }
 
-func ExampleRadialGradient_Saw() {
+func ExampleRadialGradient_saw() {
 	nl := texture.NewNLLinear()
 	w := texture.NewNLWave([]float64{125}, []*texture.NonLinear{nl}, false, false)
 	f := texture.NewRadialGradient(w)
 
 	img := texture.NewTextureGray16(600, 600, f, 0, 0, 1, 1, false)
-	image.SaveImage(img, "ExampleRadialGradient_Saw")
-	fmt.Printf("Generated ExampleRadialGradient_Saw")
-	// Output: Generated ExampleRadialGradient_Saw
+	image.SaveImage(img, "ExampleRadialGradient_saw")
+	fmt.Printf("Generated ExampleRadialGradient_saw")
+	// Output: Generated ExampleRadialGradient_saw
 }
 
-func ExampleRadialGradient_Triangle() {
+func ExampleRadialGradient_triangle() {
 	nl := texture.NewNLLinear()
 	w := texture.NewNLWave([]float64{125}, []*texture.NonLinear{nl}, true, false)
 	f := texture.NewRadialGradient(w)
 
 	img := texture.NewTextureGray16(600, 600, f, 0, 0, 1, 1, false)
-	image.SaveImage(img, "ExampleRadialGradient_Triangle")
-	fmt.Printf("Generated ExampleRadialGradient_Triangle")
-	// Output: Generated ExampleRadialGradient_Triangle
+	image.SaveImage(img, "ExampleRadialGradient_triangle")
+	fmt.Printf("Generated ExampleRadialGradient_triangle")
+	// Output: Generated ExampleRadialGradient_triangle
 }
 
-func ExampleRadialGradient_Sine() {
+func ExampleRadialGradient_sine() {
 	nl := texture.NewNLSin()
 	w := texture.NewNLWave([]float64{125}, []*texture.NonLinear{nl}, true, false)
 	f := texture.NewRadialGradient(w)
 
 	img := texture.NewTextureGray16(600, 600, f, 0, 0, 1, 1, false)
-	image.SaveImage(img, "ExampleRadialGradient_Sine")
-	fmt.Printf("Generated ExampleRadialGradient_Sine")
-	// Output: Generated ExampleRadialGradient_Sine
+	image.SaveImage(img, "ExampleRadialGradient_sine")
+	fmt.Printf("Generated ExampleRadialGradient_sine")
+	// Output: Generated ExampleRadialGradient_sine
 }
 
-func ExampleRadialGradient_Circular() {
+func ExampleRadialGradient_circular() {
 	nl1 := texture.NewNLCircle1()
 	nl2 := texture.NewNLCircle2()
 	w := texture.NewDCWave([]float64{125}, []*texture.NonLinear{nl1, nl2}, false)
 	f := texture.NewRadialGradient(w)
 
 	img := texture.NewTextureGray16(600, 600, f, 0, 0, 1, 1, false)
-	image.SaveImage(img, "ExampleRadialGradient_Circular")
-	fmt.Printf("Generated ExampleRadialGradient_Circular")
-	// Output: Generated ExampleRadialGradient_Circular
+	image.SaveImage(img, "ExampleRadialGradient_circular")
+	fmt.Printf("Generated ExampleRadialGradient_circular")
+	// Output: Generated ExampleRadialGradient_circular
 }
 
 func ExampleConicGradient() {
@@ -250,4 +250,121 @@ func ExampleShapeCombiner() {
 	image.SaveImage(img, "ExampleShapeCombiner")
 	fmt.Printf("Generated ExampleShapeCombiner")
 	// Output: Generated ExampleShapeCombiner
+}
+
+func ExampleWarp_radial() {
+	f := texture.NewSquares(40)
+
+	rwf := texture.NewRadialWF([]float64{300, 300}, 1, 1)
+
+	f2 := texture.NewWarp(f, rwf)
+
+	img := texture.NewTextureGray16(600, 600, f2, 0, 0, 1, 1, false)
+	image.SaveImage(img, "ExampleWarp_radial")
+	fmt.Printf("Generated ExampleWarp_radial")
+	// Output: Generated ExampleWarp_radial
+}
+
+func ExampleWarp_radialnl1() {
+	f := texture.NewSquares(40)
+
+	rwf := texture.NewRadialNLWF([]float64{300, 300}, texture.NewNLExponential(3), 300)
+
+	f2 := texture.NewWarp(f, rwf)
+
+	img := texture.NewTextureGray16(600, 600, f2, 0, 0, 1, 1, false)
+	image.SaveImage(img, "ExampleWarp_radialnl1")
+	fmt.Printf("Generated ExampleWarp_radialnl1")
+	// Output: Generated ExampleWarp_radialnl1
+}
+
+func ExampleWarp_radialnl2() {
+	f := texture.NewSquares(40)
+
+	rwf := texture.NewRadialNLWF([]float64{300, 300}, texture.NewNLLogarithmic(3), 300)
+
+	f2 := texture.NewWarp(f, rwf)
+
+	img := texture.NewTextureGray16(600, 600, f2, 0, 0, 1, 1, false)
+	image.SaveImage(img, "ExampleWarp_radialnl2")
+	fmt.Printf("Generated ExampleWarp_radialnl2")
+	// Output: Generated ExampleWarp_radialnl2
+}
+
+func ExampleWarp_pinch() {
+	f := texture.NewSquares(40)
+
+	rwf := texture.NewPinchXWF([]float64{300, 300}, 0.3, 0.002, 2)
+
+	f2 := texture.NewWarp(f, rwf)
+
+	img := texture.NewTextureGray16(600, 600, f2, 0, 0, 1, 1, false)
+	image.SaveImage(img, "ExampleWarp_pinch")
+	fmt.Printf("Generated ExampleWarp_pinch")
+	// Output: Generated ExampleWarp_pinch
+}
+
+func ExampleWarp_swirl() {
+	f := texture.NewSquares(40)
+
+	rwf := texture.NewSwirlWF([]float64{300, 300}, -0.05)
+
+	f2 := texture.NewWarp(f, rwf)
+
+	img := texture.NewTextureGray16(600, 600, f2, 0, 0, 1, 1, false)
+	image.SaveImage(img, "ExampleWarp_swirl")
+	fmt.Printf("Generated ExampleWarp_swirl")
+	// Output: Generated ExampleWarp_swirl
+}
+
+func ExampleWarp_drain() {
+	f := texture.NewSquares(40)
+
+	rwf := texture.NewDrainWF([]float64{300, 300}, math.Pi, 250)
+
+	f2 := texture.NewWarp(f, rwf)
+
+	img := texture.NewTextureGray16(600, 600, f2, 0, 0, 1, 1, false)
+	image.SaveImage(img, "ExampleWarp_drain")
+	fmt.Printf("Generated ExampleWarp_drain")
+	// Output: Generated ExampleWarp_drain
+}
+
+func ExampleWarp_ripple() {
+	f := texture.NewSquares(40)
+
+	rwf := texture.NewRippleXWF(100, 20, 12.5)
+
+	f2 := texture.NewWarp(f, rwf)
+
+	img := texture.NewTextureGray16(600, 600, f2, 0, 0, 1, 1, false)
+	image.SaveImage(img, "ExampleWarp_ripple")
+	fmt.Printf("Generated ExampleWarp_ripple")
+	// Output: Generated ExampleWarp_ripple
+}
+
+func ExampleWarp_radialripple() {
+	f := texture.NewSquares(40)
+
+	rwf := texture.NewRadialRippleWF([]float64{300, 300}, 100, 10, 0)
+
+	f2 := texture.NewWarp(f, rwf)
+
+	img := texture.NewTextureGray16(600, 600, f2, 0, 0, 1, 1, false)
+	image.SaveImage(img, "ExampleWarp_radialripple")
+	fmt.Printf("Generated ExampleWarp_radialripple")
+	// Output: Generated ExampleWarp_radialripple
+}
+
+func ExampleWarp_radialwriggle() {
+	f := texture.NewSquares(40)
+
+	rwf := texture.NewRadialWiggleWF([]float64{300, 300}, 100, 0.1, 0)
+
+	f2 := texture.NewWarp(f, rwf)
+
+	img := texture.NewTextureGray16(600, 600, f2, 0, 0, 1, 1, false)
+	image.SaveImage(img, "ExampleWarp_radialwriggle")
+	fmt.Printf("Generated ExampleWarp_radialwriggle")
+	// Output: Generated ExampleWarp_radialwriggle
 }
