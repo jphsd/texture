@@ -368,3 +368,74 @@ func ExampleWarp_radialwriggle() {
 	fmt.Printf("Generated ExampleWarp_radialwriggle")
 	// Output: Generated ExampleWarp_radialwriggle
 }
+
+func ExampleTiler() {
+	nl := texture.NewNLCircle1()
+	w := texture.NewNLWave([]float64{47}, []*texture.NonLinear{nl}, false, true)
+	iw := texture.NewInvertWave(w)
+	f := texture.NewRadialGradient(iw)
+
+	xfm := graphics2d.Translate(-50, -50)
+	f2 := texture.NewTransform(f, xfm)
+
+	f3 := texture.NewTiler(f2, []float64{100, 100})
+
+	img := texture.NewTextureGray16(600, 600, f3, 0, 0, 1, 1, false)
+	image.SaveImage(img, "ExampleTiler")
+	fmt.Printf("Generated ExampleTiler")
+	// Output: Generated ExampleTiler
+}
+
+func ExampleReflect() {
+	f := texture.NewPerlin(12345)
+
+	f2 := texture.NewReflect(f, []float64{0, 9}, []float64{9, 0})
+
+	img := texture.NewTextureGray16(600, 600, f2, 0, 0, .015, .015, false)
+	image.SaveImage(img, "ExampleReflect")
+	fmt.Printf("Generated ExampleReflect")
+	// Output: Generated ExampleReflect
+}
+
+func ExampleDistort() {
+	f := texture.NewPerlin(12345)
+
+	f2 := texture.NewDistort(f, 10)
+
+	img := texture.NewTextureGray16(600, 600, f2, 0, 0, .015, .015, false)
+	image.SaveImage(img, "ExampleDistort")
+	fmt.Printf("Generated ExampleDistort")
+	// Output: Generated ExampleDistort
+}
+
+func ExampleFractal_fbm() {
+	f := texture.NewPerlin(12345)
+
+	lac := 2.0
+	hurst := 1.0
+	oct := 3.0
+	xfm := graphics2d.Scale(lac, lac)
+	fbm := texture.NewFBM(hurst, lac, int(oct+1))
+	f2 := texture.NewFractal(f, xfm, fbm, 3)
+
+	img := texture.NewTextureGray16(600, 600, f2, 0, 0, .015, .015, false)
+	image.SaveImage(img, "ExampleFractal_fbm")
+	fmt.Printf("Generated ExampleFractal_fbm")
+	// Output: Generated ExampleFractal_fbm
+}
+
+func ExampleFractal_mf() {
+	f := texture.NewPerlin(12345)
+
+	lac := 2.0
+	hurst := 1.0
+	oct := 3.0
+	xfm := graphics2d.Scale(lac, lac)
+	fbm := texture.NewMF(hurst, lac, 0.5, int(oct+1))
+	f2 := texture.NewFractal(f, xfm, fbm, 3)
+
+	img := texture.NewTextureGray16(600, 600, f2, 0, 0, .015, .015, false)
+	image.SaveImage(img, "ExampleFractal_mf")
+	fmt.Printf("Generated ExampleFractal_mf")
+	// Output: Generated ExampleFractal_mf
+}
