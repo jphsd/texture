@@ -10,6 +10,9 @@ type FRGBA struct {
 
 // NewFRGBA returns a new FRGB using the supplied color.
 func NewFRGBA(col color.Color) FRGBA {
+	if frgba, ok := col.(FRGBA); ok {
+		return FRGBA{frgba.R, frgba.G, frgba.B, frgba.A}
+	}
 	r, g, b, a := col.RGBA()
 	if a == 0 {
 		return FRGBA{0, 0, 0, 0}
