@@ -21,7 +21,7 @@ func (c *MulCombiner) Eval2(x, y float64) float64 {
 	res := (v1 + c.Offs) * c.Scal * (v2 + c.Offs) * c.Scal
 	res /= c.Scal
 	res -= c.Offs
-	return res
+	return clamp(res)
 }
 
 // AddCombiner is an adding combiner (clamped).
@@ -29,16 +29,21 @@ type AddCombiner struct {
 	Name string
 	Src1 Field
 	Src2 Field
+	Offs float64
+	Scal float64
 }
 
 func NewAddCombiner(src1, src2 Field) *AddCombiner {
-	return &AddCombiner{"AddCombiner", src1, src2}
+	return &AddCombiner{"AddCombiner", src1, src2, 0, 1}
 }
 
 // Eval2 implements the Field interface.
 func (c *AddCombiner) Eval2(x, y float64) float64 {
 	v1, v2 := c.Src1.Eval2(x, y), c.Src2.Eval2(x, y)
-	return clamp(v1 + v2)
+	res := (v1+c.Offs)*c.Scal + (v2+c.Offs)*c.Scal
+	res /= c.Scal
+	res -= c.Offs
+	return clamp(res)
 }
 
 // SubCombiner is a subtracting combiner (clamped).
@@ -46,16 +51,21 @@ type SubCombiner struct {
 	Name string
 	Src1 Field
 	Src2 Field
+	Offs float64
+	Scal float64
 }
 
 func NewSubCombiner(src1, src2 Field) *SubCombiner {
-	return &SubCombiner{"SubCombiner", src1, src2}
+	return &SubCombiner{"SubCombiner", src1, src2, 0, 1}
 }
 
 // Eval2 implements the Field interface.
 func (c *SubCombiner) Eval2(x, y float64) float64 {
 	v1, v2 := c.Src1.Eval2(x, y), c.Src2.Eval2(x, y)
-	return clamp(v1 - v2)
+	res := (v1+c.Offs)*c.Scal - (v2+c.Offs)*c.Scal
+	res /= c.Scal
+	res -= c.Offs
+	return clamp(res)
 }
 
 // MinCombiner is a minimizing combiner.
