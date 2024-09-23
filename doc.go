@@ -121,8 +121,10 @@ Filters are nodes that do something with the value supplied by their source.
 They map values in [-1,1] to another in [-1,1].
 Some filters take A and B parameters, in which case the value filtered is A*value+B
   - [AbsFilter] applies [math.Abs] so the value will be in [0,1]
+  - [CeilFilter] limits the value to [-1,C]
   - [ClipFilter] limits the value to [-1,1]
   - [Convolution] calculates value by applying a kernel to the source
+  - [FloorFilter] limits the value to [C,1]
   - [FoldFilter] 'folds' a value outside of [-1,1] back in on itself
   - [InvertFilter] applies 0 - value
   - Morphological [Erode], [Dilate], [EdgeIn], [EdgeOut], [Edge], [Close], [Open], [TopHat], [BottomHat]
@@ -130,6 +132,7 @@ Some filters take A and B parameters, in which case the value filtered is A*valu
   - [OffsScaleFilter] applies A * (B + value)
   - [QuantizeFilter] quantizes the value
   - [RandQuantFilter] like [QuantizeFilter] but the values are scrambled
+  - [RemapFilter] maps the value to the new domain [A,B]
 
 # 5.2 Vector Filters (VF)
   - [UnitVector] modifies the magnitude of the vector to 1

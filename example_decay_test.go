@@ -20,7 +20,7 @@ func Example_decay() {
 	f2 := texture.NewLinearGradient(w3)
 
 	// Remap [-1,1] => [0,1]
-	f4 := texture.NewOffsScaleFilter(f2, 0.5, 1)
+	f4 := texture.NewRemapFilter(f2, 0, 1)
 
 	// Combine waves to get decay waveform
 	f3 := texture.NewMulCombiner(f, f4)

@@ -211,6 +211,70 @@ func (f *RandQuantFilter) Eval2(x, y float64) float64 {
 	return f.M[k]
 }
 
+// RemapFilter holds the parameters for a linear filter remapping [-1,1] => [a,b].
+type RemapFilter struct {
+	Name string
+	Src  Field
+	A, B float64
+}
+
+func NewRemapFilter(src Field, a, b float64) *RemapFilter {
+	return &RemapFilter{"RemapFilter", src, a, b}
+}
+
+// Eval2 implements the Field interface.
+func (f *RemapFilter) Eval2(x, y float64) float64 {
+	v := f.Src.Eval2(x, y)
+	t := (v + 1) / 2
+	return clamp(f.A*(1-t) + f.B*t)
+}
+
+// FloorFilter maps Av+B to [C, 1]
+type FloorFilter struct {
+	Name string
+	Src  Field
+	A, B float64
+	C    float64
+}
+
+func NewFloorFilter(src Field, a, b float64, c float64) *FloorFilter {
+	return &FloorFilter{"FloorFilter", src, a, b, c}
+}
+
+// Eval2 implements the Field interface.
+func (f *FloorFilter) Eval2(x, y float64) float64 {
+	v := f.Src.Eval2(x, y)
+	v *= f.A
+	v += f.B
+	if v < f.C {
+		return f.C
+	}
+	return clamp(v)
+}
+
+// CeilFilter maps Av+B to [-1,C]
+type CeilFilter struct {
+	Name string
+	Src  Field
+	A, B float64
+	C    float64
+}
+
+func NewCeilFilter(src Field, a, b float64, c float64) *CeilFilter {
+	return &CeilFilter{"CeilFilter", src, a, b, c}
+}
+
+// Eval2 implements the Field interface.
+func (f *CeilFilter) Eval2(x, y float64) float64 {
+	v := f.Src.Eval2(x, y)
+	v *= f.A
+	v += f.B
+	if v > f.C {
+		return f.C
+	}
+	return clamp(v)
+}
+
 func clamp(v float64) float64 {
 	if v < -1 {
 		return -1
