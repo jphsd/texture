@@ -27,7 +27,7 @@ func main() {
 	//nm := texture.DefaultNormal
 
 	// directional lights
-	lights := []surface.Directional{
+	lights := []surface.Light{
 		surface.NewDirectional(col.White, []float64{1, 1, 1}),
 	}
 
@@ -52,7 +52,7 @@ func main() {
 	rvals := []float64{0, 0.01, 0.05, 0.1, 0.3, 0.5, 0.7, 0.9, 1}
 	for i, r := range rvals {
 		material.Roughness = r
-		img := texture.NewRGBA(width, height, surf, 0, 0, 1, 1)
+		img := texture.NewTextureRGBA(width, height, surf, 0, 0, 1, 1, false)
 		gi.SaveImage(img, fmt.Sprintf("bumps%d", i))
 	}
 }
