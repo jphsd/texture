@@ -268,3 +268,24 @@ func (c *SubstituteCombiner) Eval2(x, y float64) float64 {
 	}
 	return c.Src2.Eval2(x, y)
 }
+
+// ThresholdCombiner selects between two sources based on whether src3 exceeds A.
+type ThresholdCombiner struct {
+	Name string
+	Src1 Field
+	Src2 Field
+	Src3 Field
+	A    float64
+}
+
+func NewThresholdCombiner(src1, src2, src3 Field, a float64) *ThresholdCombiner {
+	return &ThresholdCombiner{"ThresholdCombiner", src1, src2, src3, a}
+}
+
+// Eval2 implements the Field interface.
+func (c *ThresholdCombiner) Eval2(x, y float64) float64 {
+	if c.Src3.Eval2(x, y) < c.A {
+		return c.Src1.Eval2(x, y)
+	}
+	return c.Src2.Eval2(x, y)
+}
