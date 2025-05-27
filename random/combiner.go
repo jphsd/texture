@@ -54,3 +54,7 @@ func MakeJitterBlend(md, d int) texture.Field {
 func MakeSubstituteCombiner(md, d int) texture.Field {
 	return texture.NewSubstituteCombiner(MakeField(md, d+1), MakeField(md, d+1), MakeField(md, d+1), -1/3, 1/3)
 }
+
+func MakeThresholdCombiner(md, d int) texture.Field {
+	return texture.NewThresholdCombiner(MakeField(md, d+1), MakeField(md, d+1), MakeField(md, d+1), 0)
+}

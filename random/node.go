@@ -40,6 +40,7 @@ func GetNodes() []Node {
 			{"StochasticBlend", MakeStochasticBlend},
 			{"JitterBlend", MakeJitterBlend},
 			{"SubstituteCombiner", MakeSubstituteCombiner},
+			{"ThresholdCombiner", MakeThresholdCombiner},
 			{"Select", MakeSelect},
 			{"Direction", MakeDirection},
 			{"Magnitude", MakeMagnitude},
