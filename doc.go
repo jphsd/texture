@@ -58,7 +58,7 @@ a function of the wave's wave length (lambda).
 # 4. Leaves - 2D
 
 2D leaves vary in x and y.
-  - Chequered
+  - [Chequered]
   - [ConicGradient]
   - [Image]
   - [Perlin]
@@ -159,6 +159,7 @@ fields together using some heuristic.
   - [JitterBlend] as for [Blend] but with jitter added to t
   - [SubstituteCombiner] src1 if src3 < A or src3 > B, otherwise src2
   - [ShapeCombiner] src1 if location inside of shape, src2 otherwise
+  - [ThresholdCombiner] src1 if less than threshold A, src2 otherwise
 
 # 6.2 Vector Combiners (VF)
   - [ShapeCombinerVF] src1 if location inside of shape, src2 otherwise
