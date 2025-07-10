@@ -66,7 +66,6 @@ var NLFOptions = []NLFunc{
 	{"Logistic", MakeNLLogistic},
 	{"NLP3", MakeNLP3},
 	{"NLP5", MakeNLP5},
-	{"NLRand", MakeNLRand},
 }
 
 func MakeNL() *texture.NonLinear {
