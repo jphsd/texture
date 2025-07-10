@@ -167,7 +167,7 @@ func bcclamp(v float64) float64 {
 }
 
 // Cubic calculates the value of f(t) for t in range [0,1] given the values of t at -1, 0, 1, 2 in p[]
-// fitted to a cubic polynomial: f(t) = at^3 + bt^2 + ct + d. Clamped because it over/undershoots.
+// fitted to a cubic polynomial: f(t) = at^3 + bt^2 + ct + d.
 // (From graphics2d/util/nlerp.go and https://www.paulinternet.nl/?page=bicubic)
 func Cubic(t float64, p []float64) float64 {
 	v := p[1] + 0.5*t*(p[2]-p[0]+t*(2.0*p[0]-5.0*p[1]+4.0*p[2]-p[3]+t*(3.0*(p[1]-p[2])+p[3]-p[0])))

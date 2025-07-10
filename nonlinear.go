@@ -1,8 +1,6 @@
 package texture
 
-import (
-	"github.com/jphsd/graphics2d/util"
-)
+import "github.com/jphsd/graphics2d/util"
 
 // Wrap the NLs into named ones for marshalling
 
