@@ -356,6 +356,8 @@ In the latter case, by using [github.com/jphsd/graphics2d/image.Colorizer].
   - [NewRadialRGBA]
   - [NewConicRGBA]
 
+# Package Examples
+
 [Chequered]: https://pkg.go.dev/github.com/jphsd/texture#hdr-4_1_Chequered__F_
 [Barnsley88]: https://doi.org/10.1016/c2013-0-10335-2
 [Blinn82]: https://dl.acm.org/doi/10.1145/357306.357310
