@@ -1,8 +1,7 @@
 package random
 
 import (
-	//"fmt"
-	g2dcol "github.com/jphsd/graphics2d/color"
+	"github.com/jphsd/graphics2d/color"
 	"github.com/jphsd/texture"
 	"math/rand"
 )
@@ -40,7 +39,11 @@ func MakeColorField(md, d int) texture.ColorField {
 
 // MakeColorConv creates a new color field from a field.
 func MakeColorConv(md, d int) texture.ColorField {
-	return texture.NewColorConv(MakeField(md, d+1), g2dcol.Random(), g2dcol.Random(), nil, nil, texture.LerpType(rand.Intn(3)))
+	return texture.NewColorConv(MakeField(md, d+1), MakeColor(), MakeColor(), nil, nil, texture.LerpType(rand.Intn(3)))
+}
+
+func MakeColor() color.Color {
+	return color.HSL{rand.Float64(), 0.5, 1, 1}
 }
 
 // MakeColorGray creates a new color field from a field.

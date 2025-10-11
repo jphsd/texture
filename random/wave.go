@@ -133,10 +133,6 @@ func MakeNLP5() *texture.NonLinear {
 	return texture.NewNLP5()
 }
 
-func MakeNLRand() *texture.NonLinear {
-	return texture.NewNLRand(0.1, 0.05, rand.Intn(2) == 0)
-}
-
 var Lambdas = []float64{
 	11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97,
 }
