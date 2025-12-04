@@ -43,9 +43,8 @@ func NewEllipticalGray16(w, h int, c []float64, rx, ry, th float64, wf *NonLinea
 	nl := NewNLWave([]float64{rx}, []*NonLinear{wf}, mirror, once)
 	f1 := NewRadialGradient(nl)
 	// Reverse order
-	xfm := g2d.Translate(c[0], c[1])
-	xfm.Rotate(th)
-	xfm.Scale(1, ry/rx)
+	xfm := g2d.Scale(1, rx/ry)
+	xfm.Rotate(-th)
 	xfm.Translate(-c[0], -c[1])
 	f2 := NewTransform(f1, xfm)
 	return NewTextureGray16(w, h, f2, 0, 0, 1, 1, false)
