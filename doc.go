@@ -351,9 +351,11 @@ The gradients are all value fields and mapped to either [image/color.Gray16] or 
 In the latter case, by using [github.com/jphsd/graphics2d/image.Colorizer].
   - [NewLinearGray16]
   - [NewRadialGray16]
+  - [NewEllipticalGray16]
   - [NewConicGray16]
   - [NewLinearRGBA]
   - [NewRadialRGBA]
+  - [NewEllipticalRGBA]
   - [NewConicRGBA]
 
 # 12. Package Examples
