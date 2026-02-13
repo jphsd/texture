@@ -59,7 +59,7 @@ type VariableFractal struct {
 func NewVariableFractal(src Field, xfm *g2d.Aff3, comb OctaveCombiner, octsrc Field, scale float64) *VariableFractal {
 	n := int(scale)
 	w := make([]float64, n)
-	for i := 0; i < n; i++ {
+	for i := range n {
 		w[i] = 1
 	}
 	return &VariableFractal{"VariableFractal", src, xfm, comb, octsrc, scale / 2, w}
@@ -106,7 +106,7 @@ func NewFBM(hurst, lacunarity float64, maxoct int) *FBM {
 // combines them using the precomputed weights.
 func (f *FBM) Combine(values ...float64) float64 {
 	res := 0.0
-	for i := 0; i < len(values); i++ {
+	for i := range values {
 		res += values[i] * f.Weights[i]
 	}
 	return res
@@ -133,7 +133,7 @@ func NewMF(hurst, lacunarity, offset float64, maxoct int) *MF {
 // combines them using the precomputed weights and offset.
 func (f *MF) Combine(values ...float64) float64 {
 	res := 0.0
-	for i := 0; i < len(values); i++ {
+	for i := range values {
 		res += (values[i] + f.Offset) * f.Weights[i]
 	}
 	return res

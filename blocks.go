@@ -138,7 +138,7 @@ func (bn *BlockNoise) cbCache(r, c, samps int, w, h float64) [][]float64 {
 func (bn *BlockNoise) cellBlocks(r, c, samps int, w, h float64) [][]float64 {
 	lr := rand.New(rand.NewSource(bn.Seed + int64(r*bn.Cols+c)))
 	res := make([][]float64, samps)
-	for i := 0; i < samps; i++ {
+	for i := range samps {
 		ox, oy := lr.Float64()*bn.CellW, lr.Float64()*bn.CellH
 		dx, dy := lr.Float64()*w, lr.Float64()*h
 		v := lr.Float64()*2 - 1

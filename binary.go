@@ -12,9 +12,9 @@ type Binary struct {
 func NewBinary(width, height int, seed int64, perc float64) *Binary {
 	lr := rand.New(rand.NewSource(seed))
 	ba := make([][]bool, height)
-	for i := 0; i < height; i++ {
+	for i := range height {
 		ba[i] = make([]bool, width)
-		for j := 0; j < width; j++ {
+		for j := range width {
 			ba[i][j] = lr.Float64() < perc
 		}
 	}
