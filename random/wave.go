@@ -18,7 +18,7 @@ func MakePatternWave() texture.Wave {
 	nl := rand.Intn(5) + 1
 	lambdas := make([]float64, nl)
 	patterns := make([][]float64, nl)
-	for i := 0; i < nl; i++ {
+	for i := range nl {
 		lambdas[i] = PickLambda()
 		patterns[i] = MakePattern(5)
 	}
@@ -27,7 +27,7 @@ func MakePatternWave() texture.Wave {
 
 func MakePattern(n int) []float64 {
 	pat := make([]float64, n)
-	for i := 0; i < n; i++ {
+	for i := range n {
 		pat[i] = rand.Float64()*2 - 1
 	}
 	return pat
@@ -38,7 +38,7 @@ func MakeNLWave() texture.Wave {
 	nl := rand.Intn(5) + 1
 	lambdas := make([]float64, nl)
 	nlfs := make([]*texture.NonLinear, nl)
-	for i := 0; i < nl; i++ {
+	for i := range nl {
 		lambdas[i] = PickLambda()
 		nlfs[i] = MakeNL()
 	}

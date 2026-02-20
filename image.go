@@ -118,8 +118,8 @@ func (f *Image) biPatch(u, v float64, p [][]tcol.FRGBA) tcol.FRGBA {
 	col := make([]float64, 4)
 
 	// R
-	for j := 0; j < 4; j++ {
-		for i := 0; i < 4; i++ {
+	for j := range 4 {
+		for i := range 4 {
 			col[i] = p[i][j].R
 		}
 		row[j] = bcclamp(f.interp(v, col))
@@ -127,8 +127,8 @@ func (f *Image) biPatch(u, v float64, p [][]tcol.FRGBA) tcol.FRGBA {
 	r := bcclamp(f.interp(u, row))
 
 	// G
-	for j := 0; j < 4; j++ {
-		for i := 0; i < 4; i++ {
+	for j := range 4 {
+		for i := range 4 {
 			col[i] = p[i][j].G
 		}
 		row[j] = bcclamp(Cubic(v, col))
@@ -136,8 +136,8 @@ func (f *Image) biPatch(u, v float64, p [][]tcol.FRGBA) tcol.FRGBA {
 	g := bcclamp(f.interp(u, row))
 
 	// B
-	for j := 0; j < 4; j++ {
-		for i := 0; i < 4; i++ {
+	for j := range 4 {
+		for i := range 4 {
 			col[i] = p[i][j].B
 		}
 		row[j] = bcclamp(f.interp(v, col))
@@ -145,8 +145,8 @@ func (f *Image) biPatch(u, v float64, p [][]tcol.FRGBA) tcol.FRGBA {
 	b := bcclamp(f.interp(u, row))
 
 	// A
-	for j := 0; j < 4; j++ {
-		for i := 0; i < 4; i++ {
+	for j := range 4 {
+		for i := range 4 {
 			col[i] = p[i][j].A
 		}
 		row[j] = bcclamp(f.interp(v, col))

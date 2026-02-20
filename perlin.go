@@ -20,7 +20,7 @@ func NewPerlin(seed int64) *Perlin {
 	res.Seed = seed
 
 	// Initialize hash
-	for i := 0; i < 256; i++ {
+	for i := range 256 {
 		res.ph[i] = uint8(i)
 	}
 
@@ -28,7 +28,7 @@ func NewPerlin(seed int64) *Perlin {
 	// Scramble hash
 	lr.Shuffle(256, func(i, j int) { res.ph[i], res.ph[j] = res.ph[j], res.ph[i] })
 	// And replicate
-	for i := 0; i < 256; i++ {
+	for i := range 256 {
 		res.ph[i+256] = res.ph[i]
 	}
 

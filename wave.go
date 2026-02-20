@@ -217,7 +217,7 @@ func NewACWave(lambdas []float64, nlfs []*NonLinear, once bool) *ACWave {
 		res.Lambdas[3] = lambdas[3]
 	}
 	sum := 0.0
-	for i := 0; i < 4; i++ {
+	for i := range 4 {
 		sum += res.Lambdas[i]
 		res.CumLambda[i] = sum
 	}

@@ -62,10 +62,7 @@ func NewWorleyField(points [][]float64, a, b []float64,
 	scale, offset float64) *WorleyField {
 	kdtree := datastruct.NewKDTree(2, points...)
 	kdtree.Dist = d
-	np := len(b)
-	if np > len(points) {
-		np = len(points)
-	}
+	np := min(len(b), len(points))
 	return &WorleyField{"WorleyField", points, a, b, f, scale, offset, kdtree, np}
 }
 
